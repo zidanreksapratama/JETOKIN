@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profil</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="navbar-homepage">
+        <div class="logo">
+            <img src="/static/images/LOGO.png" alt="Logo" class="logo-img">
+            <h2 class="logo-text-2">JETOKIN</h2>
+        </div>
+        <div class="icons">
+            <a href="{{ url_for('homepage') }}">
+                <img src="/static/images/HOME.png" alt="Home Icon">
+            </a>
+            <a href="{{ url_for('setting') }}">
+                <img src="/static/images/USER.png" alt="User Icon">
+            </a>
+            <img src="/static/images/QUIZ.png" alt="Quiz Icon">
+        </div>
+    </div>
+
+    <div class="profile-container">
+        <div class="image-side">
+            <!-- Jika ingin menambahkan gambar lain, bisa ditambahkan di sini -->
+        </div>
+        <div class="login-side">
+            <div class="profile-box">
+                <div class="title-box">
+                    <h2>Edit Profile</h2>
+                </div>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <ul class="flashes">
+                        {% for category, message in messages %}
+                            <li class="{{ category }}">{{ message }}</li>
+                            <script>console.log("Message: {{ message }} | Category: {{ category }}");</script>
+                        {% endfor %}
+                        </ul>
+                    {% endif %}
+                {% endwith %}
+                <!-- Profile Picture -->
+                <div class="profile-pic">
+                    <img id="profile-pic-preview" class="form-image" 
+                         src="{{ url_for('static', filename='uploads/' + user.profile_picture) }}" 
+                         alt="Profile Picture" 
+                         {% if user.profile_picture is none %}style="display: none;"{% endif %}>
+                </div>
+                
+                
+
+                <!-- Formulir Edit Profil -->
+                <form class="edit-form" action="{{ url_for('edit_profile') }}" method="POST" enctype="multipart/form-data">
+                    <div class="form-group">                                                                                                                                                                                                                                                                        
+                        <label for="fullname">Name</label>
+                        <input type="text" id="fullname" name="fullname" value="{{ user.fullname }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="nickname">Nickname</label>
+                        <input type="text" id="nickname" name="nickname" value="{{ user.nickname }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" value="{{ user.email }}">
+                    </div>
+
+                    <div class="form-group gender">
+                        <label>Gender</label>
+                        <div class="gender-options">
+                            <input type="radio" id="male" name="gender" value="Laki-laki" {% if user.gender == 'Laki-laki' %}checked{% endif %}>
+                            <label for="male">Laki-laki</label>
+                            <input type="radio" id="female" name="gender" value="Perempuan" {% if user.gender == 'Perempuan' %}checked{% endif %}>
+                            <label for="female">Perempuan</label>
+                        </div>
+                    </div>
+                           
+                    
+                    <div class="form-image">
+                        <label for="profile-pic">Upload Profile Picture</label>
+                        <input type="file" id="profile-pic" name="profile_image" accept="image/*" onchange="previewProfilePicture(event)">
+                    </div>
+
+                    <button type="submit" class="save-button">Simpan Perubahan Profil</button>
+                </form>
+
+                <!-- Formulir Ubah Password -->
+                <div class="change-password-box">
+                    <h2></h2>
+                    <form class="change-password-form" action="{{ url_for('change_password') }}" method="POST">
+                        <div class="form-group">
+                            <label for="old-password">Password Lama</label>
+                            <input type="password" id="old-password" name="old-password" placeholder="*********">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="new-password">Password Baru</label>
+                            <input type="password" id="new-password" name="new-password" placeholder="*********">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirm-password">Konfirmasi Password Baru</label>
+                            <input type="password" id="confirm-password" name="confirm-password" placeholder="*********">
+                        </div>
+
+                        <button type="submit" class="save-button">Ubah Password</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function previewProfilePicture(event) {
+            const input = event.target;
+            const reader = new FileReader();
+            reader.onload = function() {
+                const previewImage = document.getElementById('profile-pic-preview');
+                previewImage.src = reader.result;
+            };
+            if (input.files && input.files[0]) {
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+</body>
+</html>

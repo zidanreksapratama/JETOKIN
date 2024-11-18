@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jejak Tokoh Inspiratif Indonesia</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <div class="navbar-homepage">
+        <div class="logo">
+            <img src="/static/images/LOGO.png" alt="Logo" class="logo-img">
+            <h2 class="logo-text-2">JETOKIN</h2>
+        </div>
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Apa yang anda cari?" onkeyup="searchFunction()">
+            <select>
+                <option value="">All categories</option>
+                <option value="tokoh">Tokoh Paling Berpengaruh</option>
+            </select>
+        </div>
+        <div class="icons">
+            <a href="{{ url_for('setting') }}">
+                <img src="/static/images/USER.png" alt="User Icon">
+            </a>            
+            <img src="/static/images/QUIZ.png" alt="Quiz Icon">
+            <a href="#" id="logoutLink" onclick="confirmLogout()">
+                <img src="/static/images/LOGOUT.png" alt="Logout Icon">
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content-homepage">
+        <div class="section" id="presidents-section">
+            <h3 class="section-title">Presiden Negara Republik Indonesia</h3>
+            <div class="card-container">
+                <a href="templates/index/index_soekarno.html" class="card">
+                    <img src="/static/images/PRESIDEN/SOEKARNO.jpeg" alt="Ir. Soekarno">
+                    <p>Ir. Soekarno</p>
+                </a>                
+                <div class="card">
+                    <img src="/static/images/PRESIDEN/SOEHARTO.jpeg" alt="Soeharto">
+                    <p>Soeharto</p>
+                </div>
+                <div class="card">
+                    <img src="/static/images/PRESIDEN/HABIBI.jpeg" alt="Bacharuddin Jusuf Habibie">
+                    <p>Bacharuddin Jusuf Habibie</p>
+                </div>
+                <div class="card">
+                    <img src="/static/images/PRESIDEN/GUSDUR.JPEG" alt="Abdurrahman Wahid">
+                    <p>Abdurrahman Wahid</p>
+                </div>
+                <div class="card">
+                    <img src="/static/images/PRESIDEN/MEGAWATI.jpeg" alt="Megawati Soekarnoputri">
+                    <p>Megawati Soekarnoputri</p>
+                </div>
+                <div class="card">
+                    <img src="/static/images/PRESIDEN/SBY.jpeg" alt="Susilo Bambang Yudhoyono">
+                    <p>Susilo Bambang Yudhoyono</p>
+                </div>
+                <div class="card">
+                    <img src="/static/images/PRESIDEN/JOKOWI.jpeg" alt="Joko Widodo">
+                    <p>Joko Widodo</p>
+                </div>
+                <div class="card">
+                    <img src="/static/images/PRESIDEN/PRABOWO.jpeg" alt="PRABOWO SUBIANTO">
+                    <p>Prabowo Subianto</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="generals-section">
+            <h3 class="section-title">Jendral Korban G30S PKI</h3>
+            <div class="card-container">
+                <div class="card">
+                    <img src="/static/images/hatta.png" alt="M. Hatta">
+                    <p>M. Hatta</p>
+                </div>
+                <div class="card">
+                    <img src="/static/images/soeharto.png" alt="Soeharto">
+                    <p>Soeharto</p>
+                </div>
+                <div class="card">
+                    <img src="/static/images/ahmad-dahlan.png" alt="Ahmad Dahlan">
+                    <p>Ahmad Dahlan</p>
+                </div>
+                <div class="card">
+                    <img src="/static/images/hasyim-asyari.png" alt="Hasyim Asy'ari">
+                    <p>Hasyim Asy'ari</p>
+                </div>
+                <div class="card">
+                    <img src="/static/images/pangeran-diponegoro.png" alt="Pangeran Diponegoro">
+                    <p>Pangeran Diponegoro</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="influential-section">
+            <h3 class="section-title">Tokoh Paling Berpengaruh</h3>
+            <div class="card-container">
+                <div class="card">
+                    <img src="/static/images/soekarno.png" alt="Ir. Soekarno">
+                    <p>Ir. Soekarno</p>
+                </div>
+                <div class="card">
+                    <img src="/static/images/hatta.png" alt="M. Hatta">
+                    <p>M. Hatta</p>
+                </div>
+                <div class="card">
+                    <img src="/static/images/soeharto.png" alt="Soeharto">
+                    <p>Soeharto</p>
+                </div>
+                <div class="card">
+                    <img src="/static/images/ahmad-dahlan.png" alt="Ahmad Dahlan">
+                    <p>Ahmad Dahlan</p>
+                </div>
+                <div class="card">
+                    <img src="/static/images/hasyim-asyari.png" alt="Hasyim Asy'ari">
+                    <p>Hasyim Asy'ari</p>
+                </div>
+                <div class="card">
+                    <img src="/static/images/pangeran-diponegoro.png" alt="Pangeran Diponegoro">
+                    <p>Pangeran Diponegoro</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 Jejak Tokoh Inspiratif Indonesia. All rights reserved.</p>
+    </footer>
+
+    <script>
+        function searchFunction() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const sections = document.querySelectorAll('.section');
+
+            sections.forEach(section => {
+                const cards = section.querySelectorAll('.card');
+                let hasMatch = false;
+
+                cards.forEach(card => {
+                    const cardText = card.querySelector('p').textContent.toLowerCase();
+                    if (cardText.includes(input)) {
+                        card.style.display = 'block'; // Tampilkan jika cocok
+                        hasMatch = true;
+                    } else {
+                        card.style.display = 'none'; // Sembunyikan jika tidak cocok
+                    }
+                });
+
+                section.style.display = hasMatch ? 'block' : 'none'; // Tampilkan bagian jika ada kartu yang cocok
+            });
+        }
+        function confirmLogout() {
+            const confirmation = confirm("Apakah Anda yakin ingin keluar?");
+            if (confirmation) {
+                window.location.href = "/logout"; // Arahkan ke halaman logout
+            }
+        }
+    </script>
+
+</body>
+</html>
