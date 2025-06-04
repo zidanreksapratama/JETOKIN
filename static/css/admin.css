@@ -1,0 +1,364 @@
+/* Reset default styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body and overall layout */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;  /* Menjamin tinggi badan halaman memenuhi layar */
+}
+
+/* Container */
+.container-1 {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Sidebar */
+.sidebar {
+    background-color: #E30613; /* Red background */
+    color: white;
+    width: 250px;  /* Lebar tetap */
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    height: 100vh;  /* Tinggi penuh layar */
+    overflow-y: auto;  /* Menambahkan scroll vertikal */
+    position: fixed;  /* Sidebar tetap di tempat */
+    top: 0;
+    left: 0;
+    z-index: 1000;  /* Memastikan sidebar berada di atas konten */
+}
+
+.navbar-homepage {
+    text-align: center;
+}
+
+.logo-img {
+    width: 80px;
+    margin-bottom: 10px;
+}
+
+.logo-text-2 {
+    color: white;
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.icons a {
+    color: white;
+    text-decoration: none;
+    padding-left: 15px;
+}
+
+/* Sidebar Nav */
+.sidebar-nav ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.sidebar-nav li {
+    margin: 15px 0;
+}
+
+.sidebar-nav li a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    display: block;
+    border-radius: 5px;
+}
+
+.canvas {
+    background-color: white;
+}
+
+.sidebar-nav li a:hover {
+    background-color: #B30000; /* Darker red on hover */
+}
+
+/* Main content */
+.main-content {
+    flex-grow: 1;
+    margin-left: 250px;  /* Memberikan ruang untuk sidebar */
+    padding: 20px;
+    overflow-y: auto;  /* Menambahkan scroll vertikal untuk konten */
+    background-color: #fff;
+}
+
+/* Main header */
+.main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.main-header h2 {
+    font-size: 28px;
+    color: #333;
+}
+
+.btn-tbh {
+    background-color: #E30613;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.btn-tbh:hover {
+    background-color: #B30000;
+}
+
+/* Table */
+.data-table {
+    width: 100%; /* Menyesuaikan dengan lebar kontainer */
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.data-table th, .data-table td {
+    padding: 12px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+.data-table th {
+    color: white;
+    background-color: red;
+    font-weight: bold;
+}
+
+.data-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.data-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Image styling in table */
+.data-table img {
+    width: 50px;
+    height: auto;
+    border-radius: 5px;
+}
+
+/* Styling untuk tombol aksi */
+.data-table .btn {
+    padding: 8px 12px;
+    font-size: 14px;
+    display: inline-block;
+    margin: 5px 0;
+    width: auto;
+    text-align: center;
+}
+
+/* Tombol Edit */
+.data-table .btn-warning {
+    background-color: #FFB703;
+    margin-right: 5px;
+}
+
+.data-table .btn-warning:hover {
+    background-color: #FF9A00;
+}
+
+/* Tombol Hapus */
+.data-table .btn-danger {
+    background-color: #FF4040;
+}
+
+.data-table .btn-danger:hover {
+    background-color: #FF1E1E;
+}
+
+/* Navbar container */
+.navbar-homepage {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+}
+
+/* Logo */
+.logo {
+    display: flex;
+    align-items: center;
+}
+
+.logo-img {
+    width: 40px;
+    height: auto;
+    margin-right: 10px;
+}
+
+/* Ikon logout */
+.icons a img {
+    width: 24px;
+    height: 24px;
+}
+
+/* Garis pemisah antara logo dan PAGE ADMIN */
+.divider-admin {
+    border: none;
+    border-top: 3px solid white;
+    padding-bottom: 15px;
+}
+
+/* Header-side */
+.header-side {
+    text-align: center;
+    padding-bottom: 15px;
+}
+
+/* Sidebar Nav Item Hover */
+.sidebar-nav ul li a {
+    padding: 10px;
+    display: block;
+    color: white;
+    text-decoration: none;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Efek hover pada menu item */
+.sidebar-nav ul li a:hover {
+    background-color: #f1f1f1;
+    color: #333;
+    border-radius: 5px;
+}
+
+/* Link aktif sidebar */
+.sidebar-nav a.active {
+    font-weight: bold;
+    background-color: #fff;
+    color: #ff0000;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+}
+
+/* Container untuk card */
+.card-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: space-between;
+}
+
+/* Card styling */
+.card-admin {
+    background-color: red;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    padding: 20px;
+    transition: transform 0.3s ease-in-out;
+    flex: 1 1 calc(33.33% - 20px);
+}
+
+.card-admin:hover {
+    transform: translateY(-5px);
+}
+
+.card-admin h1 {
+    text-align: center;
+    font-size: 25px;
+    color: white;
+}
+
+.card-text {
+    padding-top: 25px;
+    text-align: center;
+    font-size: 25px;
+    color: white;
+}
+
+/* Form Elements */
+.form {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #333333;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="date"],
+input[type="file"],
+textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 1rem;
+    background-color: #ffffff;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+input[type="file"]:focus,
+textarea:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+button.btn {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button.btn-primary {
+    background-color: #007bff;
+    color: #ffffff;
+}
+
+button.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+button.btn-danger {
+    background-color: #dc3545;
+    color: #ffffff;
+}
+
+button.btn-danger:hover {
+    background-color: #a71d2a;
+}
