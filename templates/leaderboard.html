@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
+    <title>Leaderboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, red, #6a11cb);
+            color: white;
+            flex-direction: column;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 30px rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            height: 90%;
+            width: 70%;
+            animation: rotate-shadow 4s linear infinite;
+        }
+
+        @keyframes rotate-shadow {
+            0% {
+                box-shadow: 0 4px 30px rgba(255, 255, 255, 1);
+            }
+
+            25% {
+                box-shadow: 10px 10px 30px rgba(255, 255, 255, 1);
+            }
+
+            50% {
+                box-shadow: -10px 10px 30px rgba(255, 255, 255, 1);
+            }
+
+            75% {
+                box-shadow: -10px -10px 30px rgba(255, 255, 255, 1);
+            }
+
+            100% {
+                box-shadow: 10px -10px 30px rgba(255, 255, 255, 1);
+            }
+        }
+
+        .leaderboard-title {
+            font-size: 2.5em;
+            margin-bottom: 30px;
+        }
+
+        .ranking {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            margin-bottom: 30px;
+        }
+
+        .rank-box {
+            background: linear-gradient(to bottom, #ffee00, #e1ff0075);
+            padding: 20px;
+            border-radius: 10px;
+            color: black;
+            font-size: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100px;
+            flex-direction: column;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: height 0.3s ease, transform 0.3s ease;
+        }
+
+        .rank-box .rank {
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+
+        .rank-box .score {
+            font-size: 1.2em;
+            margin-top: 10px;
+        }
+
+        .ranking {
+            position: relative;
+            height: 300px;
+        }
+
+        .ranking .rank-box:nth-child(1) {
+            height: 220px;
+            transform: scale(1.2);
+            position: absolute;
+            left: 50%;
+            bottom: 0;
+            transform: translateX(-50%) scale(1.2);
+            animation: glowing 2s infinite;
+        }
+
+        @keyframes glowing {
+            0% {
+                box-shadow: 0 0 10px 5px rgba(255, 255, 0, 0.5);
+            }
+
+            50% {
+                box-shadow: 0 0 20px 10px rgba(255, 255, 0, 0.7);
+            }
+
+            100% {
+                box-shadow: 0 0 10px 5px rgba(255, 255, 0, 0.5);
+            }
+        }
+
+        .ranking .rank-box:nth-child(2) {
+            height: 150px;
+            transform: scale(1.1);
+            position: absolute;
+            left: 20%;
+            bottom: 0;
+        }
+
+        .ranking .rank-box:nth-child(3) {
+            height: 130px;
+            position: absolute;
+            right: 20%;
+            bottom: 0;
+        }
+
+        .player-list-box {
+            margin-top: 45px;
+            width: 95%;
+            max-height: 200px;
+            overflow-y: scroll;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .player-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px;
+            margin-bottom: 5px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .player-item img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 15px;
+            border: 2px solid white;
+        }
+
+        .player-item .name {
+            font-size: 1.2em;
+            color: white;
+        }
+
+        .player-item .score {
+            font-size: 1.2em;
+            color: white;
+        }
+
+        .rank-box .profile-pic,
+        .player-item img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid white;
+        }
+
+        /* Logo styling */
+        .logo-container {
+            display: flex;
+            align-items: center;
+            position: absolute;
+            left: 20px;
+            top: 20px;
+        }
+
+        .logo-container img {
+            width: 30px;
+            /* Ukuran logo lebih kecil */
+            height: auto;
+            margin-right: 10px;
+            cursor: pointer;
+            /* Menambahkan pointer cursor */
+        }
+
+        .logo-container h1 {
+            font-size: 2em;
+            margin: 0;
+            color: white;
+        }
+
+        .logo-container a {
+            display: inline-block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="logo-container">
+            <div class="icons">
+                <a href="{{ url_for('quiz') }}">
+                    <img src="{{ url_for('static', filename='images/back_icon.png') }}" alt="Back">
+                </a>
+            </div>
+            <h1>Leaderboard</h1>
+        </div>
+        <div class="ranking">
+            {% for player in leaderboard[:3] %}
+            <div class="rank-box">
+                <img src="{{ player.profile_picture_url }}" alt="Profile Picture" class="profile-pic">
+                <div class="rank">{{ loop.index }}</div>
+                <div class="score">{{ player.total_score }} Points</div>
+                <div class="name">{{ player.nickname }}</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="player-list-box">
+            {% for player in leaderboard[3:] %}
+            <div class="player-item">
+                <div class="name">{{ loop.index + 3 }}. {{ player.nickname }}</div>
+                <div class="score">{{ player.total_score }} QP</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+
+</html>

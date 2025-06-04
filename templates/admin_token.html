@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Token</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        pre { background: #f4f4f4; padding: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Token Admin</h1>
+    <p><strong>Token:</strong></p>
+    <pre>{{ token }}</pre>
+
+    <p><strong>Dibuat pada:</strong> {{ created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+
+    <h2>Hasil Decode Token</h2>
+    <pre>{{ decoded | tojson(indent=4) }}</pre>
+</body>
+</html>

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentiment Analysis Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: red;
+            --secondary-color: red;
+            --accent-color: #3498db;
+            --background-light: #f7f9fc;
+            --text-dark: #2c3e50;
+            --danger-color: #e74c3c;
+        }
+
+        * {
+            transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .navbar {
+            background-color: var(--primary-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .icons img {
+            width: 35px;
+            /* Atur ukuran lebar ikon sesuai kebutuhan */
+            height: auto;
+            /* Agar tinggi disesuaikan dengan lebar */
+            margin-right: 20px;
+        }
+
+        .navbar-brand {
+            color: white !important;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.09);
+            margin-bottom: 30px;
+        }
+
+        .card-header {
+            background-color: var(--secondary-color);
+            color: white;
+            font-weight: 600;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+
+
+        .form-control {
+            border: 1.5px solid #e0e4e8;
+            border-radius: 8px;
+            padding: 12px 15px;
+            font-size: 0.95rem;
+            height: 300px;
+        }
+
+        .form-control:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
+        }
+
+        .btn-submit {
+            background-color: var(--accent-color);
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            font-weight: 600;
+            border-radius: 50px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: block;
+            width: 100%;
+        }
+
+        .btn-submit:hover {
+            background-color: #2ecc71;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        #reviews-container {
+            margin-top: 30px;
+        }
+
+        .list-group-item {
+            border: none;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            background-color: white;
+        }
+
+        .list-group-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .review-author {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .review-date {
+            font-size: 0.85rem;
+            color: gray;
+        }
+
+        .alert {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark py-3">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">Feedback Platform</a>
+        </div>
+        <div class="icons">
+            <a href="{{ url_for('homepage') }}">
+                <img src="{{ url_for('static', filename='images/back_icon.png') }}" alt="Back">
+            </a>
+        </div>
+    </nav>
+
+    <div class="container-fluid py-4">
+        <div id="alert-container"></div>
+
+        <div class="card">
+            <div class="card-header">Berikan Ulasan Anda</div>
+            <div class="card-body">
+                <form id="review-form">
+                    <div class="mb-3">
+                        <label for="reviewText" class="form-label">Tulis Ulasan:</label>
+                        <textarea class="form-control" id="reviewText" rows="4" placeholder="Share your experience..."
+                            required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-submit" id="submitButton">Kirim Ulasan</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showAlert(message, type = 'success') {
+            const alertContainer = document.getElementById('alert-container');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.innerHTML = message;
+
+            alertContainer.appendChild(alert);
+
+            // Hapus notifikasi setelah 3 detik
+            setTimeout(() => {
+                alert.remove();
+            }, 3000);
+        }
+
+        // Submit review form
+        document.getElementById('review-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const reviewText = document.getElementById('reviewText');
+            const submitButton = document.getElementById('submitButton');
+
+            // Disable button to prevent multiple submissions
+            submitButton.disabled = true;
+            submitButton.innerHTML = 'Submitting...';
+
+            fetch('/add_review', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ text: reviewText.value })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('HTTP error! status: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Server response:', data);
+                    if (data.message === "Ulasan berhasil dikirim!") {
+                        showAlert('Review submitted successfully!');
+                    } else {
+                        showAlert(data.message, 'danger');
+                    }
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    showAlert('Gagal mengirim ulasan. Silakan coba lagi.', 'danger');
+                })
+                .finally(() => {
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = 'Kirim Ulasan';
+                });
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

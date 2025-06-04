@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Data Tokoh</title>
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<style>
+    .list-group-item {
+        border: none;
+        border-radius: 10px;
+        margin-bottom: 15px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+    }
+
+    .list-group-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    #sentimentPieChart {
+        border-radius: 10px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.09);
+    }
+</style>
+
+<body>
+    <div class="container-1">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-nav">
+                <div class="navbar-homepage">
+                    <div class="logo">
+                        <img src="/static/images/LOGO.png" alt="Logo" class="logo-img">
+                        <h1 class="logo-text-2">JETOKIN</h1>
+                        <div class="icons">
+                            <a href="#" id="logoutLink" onclick="confirmLogout()">
+                                <img src="/static/images/LOGOUT.png" alt="Logout Icon">
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <hr class="divider-admin">
+                <div class="header-side">
+                    <h3>PAGE ADMIN</h3>
+                </div>
+                <hr class="divider-admin">
+                <nav class="sidebar-nav">
+                    <ul>
+                        <li><a href="#" class="menu-item" id="dashboardMenu">Dashboard</a></li>
+                        <li><a href="#" class="menu-item" id="dataTokohMenu">Data Tokoh</a></li>
+                        <li><a href="#" class="menu-item" id="dataTimelineMenu">Data Timeline</a></li>
+                        <li><a href="#" class="menu-item" id="dataQuizMenu">Data Quiz</a></li>
+                        <li><a href="#" class="menu-item" id="dataLaguNasionalMenu">Lagu Nasional</a></li>
+                        <li><a href="#" class="menu-item" id="dataLaguDaerahMenu">Lagu Daerah</a></li>
+                        <li><a href="#" class="menu-item" id="dataMediaMenu">Data Media Timeline</a></li>
+                        <li><a href="#" class="menu-item" id="dataBadWordMenu">Badword</a></li>
+                        <li><a href="#" class="menu-item" id="dataSentimentMenu">Sentiment Analisis</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content" id="mainContent">
+            <div id="dataTokohContent" class="content">
+                <!-- Tabel Data Tokoh -->
+                <header class="main-header">
+                    <h2>Data Tokoh</h2>
+                    <a href="#" class="btn-tbh" onclick="showAddTokohForm()">Tambah Tokoh</a>
+                </header>
+                <!-- Form Pencarian -->
+                <form method="GET" action="{{ url_for('admin_menu') }}">
+                    <div>
+                        <label for="search_tokoh">Cari Nama Tokoh:</label>
+                        <input type="text" id="search_tokoh" name="search_tokoh" placeholder="Masukkan Nama Tokoh"
+                            value="{{ request.args.get('search_tokoh', '') }}">
+                        <button class="btn-tbh" type="submit">Cari</button>
+                    </div>
+                </form>
+                <table border="1" class="data-table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama Tokoh</th>
+                            <th>Zaman Perjuangan</th>
+                            <th>Bidang Perjuangan</th>
+                            <th>Foto</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if tokoh %}
+                        {% for t in tokoh %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ t.name }}</td>
+                            <td>{{ t.zaman_perjuangan }}</td>
+                            <td>{{ t.bidang_perjuangan }}</td>
+                            <td>
+                                {% if t.photo_url %}
+                                <img src="{{ url_for('static', filename='images/Pahlawan/' + t.photo_url) }}" width="50">
+                                {% else %}
+                                Tidak ada foto
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ url_for('delete_tokoh', id=t.id) }}" class="btn btn-danger"
+                                    onclick="return confirmDelete()">Hapus</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td colspan="6" style="text-align: center;">Tidak ada data tokoh.</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Form Tambah Tokoh -->
+            <div id="addTokohForm" class="content" style="display: none;">
+                <header class="main-header">
+                    <h2>Tambah Data Tokoh</h2>
+                </header>
+                <form action="{{ url_for('add_tokoh') }}" method="POST" enctype="multipart/form-data" class="form">
+                    <div class="form-group">
+                        <label for="name">Nama Tokoh</label>
+                        <input type="text" id="name" name="name" placeholder="Nama Tokoh" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="ascencion_document_number">Nomor Dokumen Pengangkatan</label>
+                        <input type="text" id="ascencion_document_number" name="ascencion_document_number"
+                            placeholder="Nomor Dokumen">
+                    </div>
+                    <div class="form-group">
+                        <label for="ascencion_document_date">Tanggal Dokumen Pengangkatan</label>
+                        <input type="text" id="ascencion_document_date" name="ascencion_document_date"
+                            placeholder="Tanggal Dokumen">
+                    </div>
+                    <div class="form-group">
+                        <label for="ascencion_year">Tahun Pengangkatan</label>
+                        <input type="number" id="ascencion_year" name="ascencion_year" placeholder="Tahun Kenaikan">
+                    </div>
+                    <div class="form-group">
+                        <label for="zaman_perjuangan">Zaman Perjuangan</label>
+                        <input type="text" id="zaman_perjuangan" name="zaman_perjuangan" placeholder="Zaman Perjuangan">
+                    </div>
+                    <div class="form-group">
+                        <label for="bidang_perjuangan">Bidang Perjuangan</label>
+                        <input type="text" id="bidang_perjuangan" name="bidang_perjuangan"
+                            placeholder="Bidang Perjuangan">
+                    </div>
+                    <div class="form-group">
+                        <label for="birth_date">Tanggal Lahir</label>
+                        <input type="text" id="birth_date" name="birth_date" placeholder="Tanggal Lahir">
+                    </div>
+                    <div class="form-group">
+                        <label for="birth_place">Tempat Lahir</label>
+                        <input type="text" id="birth_place" name="birth_place" placeholder="Tempat Lahir">
+                    </div>
+                    <div class="form-group">
+                        <label for="death_date">Tanggal Wafat</label>
+                        <input type="text" id="death_date" name="death_date" placeholder="Tanggal Wafat">
+                    </div>
+                    <div class="form-group">
+                        <label for="death_place">Tempat Wafat</label>
+                        <input type="text" id="death_place" name="death_place" placeholder="Tempat Wafat">
+                    </div>
+                    <div class="form-group">
+                        <label for="burial_place">Tempat Pemakaman</label>
+                        <input type="text" id="burial_place" name="burial_place" placeholder="Tempat Pemakaman">
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Deskripsi</label>
+                        <textarea id="description" name="description" placeholder="Deskripsi"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="peran_utama">Peran Utama</label>
+                        <input type="text" id="peran_utama" name="peran_utama" placeholder="Peran Utama">
+                    </div>
+                    <div class="form-group">
+                        <label for="photo">Tambah Gambar</label>
+                        <input type="file" id="photo" name="photo" accept="image/*" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" onclick="hideAddTokohForm()">Simpan</button>
+                        <button type="button" class="btn btn-danger" onclick="hideAddTokohForm()">Batal</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="dataQuizContent" class="content">
+                <!-- Tabel Data Quiz -->
+                <header class="main-header">
+                    <h2>Data Quiz</h2>
+                    <a href="#" class="btn-tbh" onclick="showAddQuizForm()">Tambah Quiz</a>
+                </header>
+
+                <!-- Tabel Daftar Quiz -->
+                <table border="1" class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Pertanyaan</th>
+                            <th>Jawaban Benar</th>
+                            <th>Pilihan 1</th>
+                            <th>Pilihan 2</th>
+                            <th>Pilihan 3</th>
+                            <th>Tingkat Kesulitan</th>
+                            <th>Poin</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if quiz_list %}
+                        {% for quiz in quiz_list %}
+                        <tr>
+                            <td>{{ quiz.quiz_id if quiz.quiz_id is not none else 'N/A' }}</td>
+                            <td>{{ quiz.question if quiz.question is not none else 'Tidak ada pertanyaan' }}</td>
+                            <td>{{ quiz.correct_answer if quiz.correct_answer is not none else 'Tidak ada jawaban' }}
+                            </td>
+                            <td>{{ quiz.option_1 if quiz.option_1 is not none else 'Pilihan 1 tidak tersedia' }}</td>
+                            <td>{{ quiz.option_2 if quiz.option_2 is not none else 'Pilihan 2 tidak tersedia' }}</td>
+                            <td>{{ quiz.option_3 if quiz.option_3 is not none else 'Pilihan 3 tidak tersedia' }}</td>
+                            <td>{{ quiz.difficulty if quiz.difficulty is not none else 'Tidak ada tingkat kesulitan' }}
+                            </td>
+                            <td>{{ quiz.points if quiz.points is not none else 0 }}</td>
+                            <td>
+                                <form action="{{ url_for('delete_quiz', quiz_id=quiz.quiz_id) }}" method="POST"
+                                    style="display: inline;">
+                                    <button type="submit" class="btn btn-danger"
+                                        onclick="return confirm('Yakin ingin menghapus?')">Hapus</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td colspan="9" style="text-align: center;">Tidak ada data quiz.</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Form Tambah Quiz -->
+            <div id="addQuizForm" class="content" style="display: none;">
+                <header class="main-header">
+                    <h2>Tambah Data Quiz</h2>
+                </header>
+                <form action="{{ url_for('add_quiz') }}" method="POST" class="form">
+                    <div class="form-group">
+                        <label for="tokoh_id">Pilih Tokoh</label>
+                        <select id="tokoh_id" name="tokoh_id" required>
+                            {% for t in tokoh %}
+                            <option value="{{ t.id }}">{{ t.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="question">Pertanyaan</label>
+                        <textarea id="question" name="question" placeholder="Tulis Pertanyaan" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="correct_answer">Jawaban Benar</label>
+                        <input type="text" id="correct_answer" name="correct_answer" placeholder="Jawaban Benar"
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <label for="option_1">Pilihan 1</label>
+                        <input type="text" id="option_1" name="option_1" placeholder="Pilihan 1">
+                    </div>
+                    <div class="form-group">
+                        <label for="option_2">Pilihan 2</label>
+                        <input type="text" id="option_2" name="option_2" placeholder="Pilihan 2">
+                    </div>
+                    <div class="form-group">
+                        <label for="option_3">Pilihan 3</label>
+                        <input type="text" id="option_3" name="option_3" placeholder="Pilihan 3">
+                    </div>
+                    <div class="form-group">
+                        <label for="difficulty">Tingkat Kesulitan</label>
+                        <select id="difficulty" name="difficulty">
+                            <option value="easy">Mudah</option>
+                            <option value="medium">Sedang</option>
+                            <option value="hard">Sulit</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="points">Poin</label>
+                        <input type="number" id="points" name="points" placeholder="Poin" value="0">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" onclick="hideAddQuizForm()">Simpan</button>
+                        <button type="button" class="btn btn-danger" onclick="hideAddQuizForm()">Batal</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="dashboardContent" class="content">
+                <header class="main-header">
+                    <h2>Dashboard</h2>
+                </header>
+
+                <div class="card-container">
+                    <!-- Card Total User -->
+                    <div class="card-admin">
+                        <h1>Total User</h1>
+                        <p class="card-text">{{ total_users if total_users else 'Data tidak ditemukan' }}</p>
+                    </div>
+
+                    <!-- Card Total Tokoh -->
+                    <div class="card-admin">
+                        <h1>Total Tokoh</h1>
+                        <p class="card-text">{{ total_tokoh if total_tokoh else 'Data tidak ditemukan' }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="dataTimelineContent" class="content">
+                <header class="main-header">
+                    <h2>Data Timeline</h2>
+                    <a href="#" class="btn-tbh" onclick="showAddTimelineForm();">Tambah Timeline</a>
+                </header>
+
+                <form method="GET" action="{{ url_for('admin_menu') }}">
+                    <div>
+                        <label for="search_tokoh">Cari Nama Tokoh:</label>
+                        <input type="text" id="search_tokoh" name="search_tokoh" placeholder="Masukkan Nama Tokoh"
+                            value="{{ request.args.get('search_tokoh', '') }}">
+                        <button class="btn-tbh" type="submit">Cari</button>
+                    </div>
+                </form>
+
+                <table border="1" class="data-table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama Timeline</th>
+                            <th>Nomor Urut</th>
+                            <th>Deskripsi</th>
+                            <th>Tokoh</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if timelines %}
+                        {% for t in timelines %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ t.nama_timeline }}</td>
+                            <td>{{ t.nomor_urut }}</td>
+                            <td>{{ t.deskripsi }}</td>
+                            <td>{{ t.tokoh.name if t.tokoh else "Tidak diketahui" }}</td>
+                            <td>
+                                <form action="{{ url_for('delete_timeline', timeline_id=t.timeline_id) }}" method="POST"
+                                    style="display: inline;">
+                                    <button type="submit" class="btn btn-danger"
+                                        onclick="return confirm('Yakin ingin menghapus?')">Hapus</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td colspan="6" style="text-align: center;">Tidak ada data timeline.</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Form Tambah Timeline -->
+            <div id="addTimelineForm" class="content" style="display: none;">
+                <header class="main-header">
+                    <h2>Tambah Data Timeline Tokoh</h2>
+                </header>
+                <form action="{{ url_for('add_timeline') }}" method="POST" enctype="multipart/form-data" class="form">
+                    <div class="form-group">
+                        <label for="tokoh_id">Nama Tokoh</label>
+                        <select id="tokoh_id" name="tokoh_id" required>
+                            <option value="">Pilih Tokoh</option>
+                            {% for tokoh in tokoh %}
+                            <option value="{{ tokoh.id }}">{{ tokoh.name }}</option>
+                            {% else %}
+                            <option disabled>Tidak ada tokoh tersedia</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="nomor_urut">Nomor Urut</label>
+                        <input type="number" id="nomor_urut" name="nomor_urut" placeholder="Nomor Urut" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="nama_timeline">Nama Timeline</label>
+                        <input type="text" id="nama_timeline" name="nama_timeline" placeholder="Nama Timeline" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="deskripsi">Deskripsi</label>
+                        <textarea id="deskripsi" name="deskripsi" placeholder="Deskripsi Timeline" required></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" onclick="hideAddTimelineForm()">Simpan</button>
+                        <button type="button" class="btn btn-danger" onclick="hideAddTimelineForm()">Batal</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="dataLaguNasionalContent" class="content">
+                <!-- Tabel Lagu Nasional -->
+                <header class="main-header">
+                    <h2>Data Lagu Nasional</h2>
+                    <a href="#" class="btn-tbh" onclick="showAddLaguNasionalForm()">Tambah Lagu</a>
+                </header>
+            
+                <!-- Form Pencarian -->
+                <form method="GET" action="{{ url_for('admin_menu') }}">
+                    <div>
+                        <label for="search_song">Cari Judul Lagu:</label>
+                        <input type="text" id="search_song" name="search_song" placeholder="Masukkan Judul Lagu"
+                            value="{{ request.args.get('search_song', '') }}">
+                        <button class="btn-tbh" type="submit">Cari</button>
+                    </div>
+                </form>
+            
+                <table border="1" class="data-table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Judul Lagu</th>
+                            <th>Tahun Rilis</th>
+                            <th>Bahasa</th>
+                            <th>Lirik</th>
+                            <th>Audio</th>
+                            <th>Cover</th>
+                            <th>Durasi</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if songs %}
+                            {% for song in songs %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>{{ song.title }}</td>
+                                <td>{{ song.release_year or '-' }}</td>
+                                <td>{{ song.language or '-' }}</td>
+                                <td style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                    {{ song.lyrics[:100] }}{% if song.lyrics|length > 100 %}...{% endif %}
+                                </td>
+                                <td>
+                                    {% if song.audio_url %}
+                                    <audio controls>
+                                        <source src="{{ url_for('static', filename='LAGU/Nasional/audio/' + song.audio_url) }}" type="audio/mpeg">
+                                        Browser Anda tidak mendukung audio.
+                                    </audio>
+                                    {% else %}
+                                    Tidak ada audio
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if song.cover_url %}
+                                    <img src="{{ url_for('static', filename='LAGU/Nasional/cover/' + song.cover_url) }}" width="50" alt="Cover">
+                                    {% else %}
+                                    Tidak ada cover
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if song.duration %}
+                                        {{ song.duration.strftime('%M:%S') }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <form action="{{ url_for('delete_song', song_id=song.id) }}" method="POST"
+                                        onsubmit="return confirm('Apakah Anda yakin ingin menghapus lagu ini?');"
+                                        style="display:inline;">
+                                        <button type="submit" class="btn btn-danger">Hapus</button>
+                                    </form>                                    
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="9" style="text-align: center;">Tidak ada data lagu nasional.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Form Tambah Lagu Nasional -->
+            <div id="addLaguNasionalForm" class="content" style="display: none;">
+                <header class="main-header">
+                    <h2>Tambah Data Lagu Nasional</h2>
+                </header>
+                <form action="{{ url_for('add_song') }}" method="POST" enctype="multipart/form-data" class="form">
+                    <input type="hidden" name="type" value="nasional"> <!-- Untuk membedakan lagu nasional -->
+
+                    <div class="form-group">
+                        <label for="title">Judul Lagu</label>
+                        <input type="text" id="title" name="title" placeholder="Judul Lagu" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="release_year">Tahun Rilis</label>
+                        <input type="number" id="release_year" name="release_year" placeholder="Tahun Rilis">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="language">Bahasa</label>
+                        <input type="text" id="language" name="language" placeholder="Bahasa Lagu">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="duration">Durasi (format: mm:ss)</label>
+                        <input type="text" id="duration" name="duration" placeholder="Contoh: 03:30">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lyrics">Lirik</label>
+                        <textarea id="lyrics" name="lyrics" placeholder="Lirik Lagu"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="audio_url">Upload Audio (MP3)</label>
+                        <input type="file" id="audio_url" name="audio_url" accept="audio/*" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cover_url">Upload Cover</label>
+                        <input type="file" id="cover_url" name="cover_url" accept="image/*">
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" onclick="hideAddLaguNasionalForm()">Simpan</button>
+                        <button type="button" class="btn btn-danger" onclick="hideAddLaguNasionalForm()">Batal</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="dataLaguDaerahContent" class="content" style="display:none;">
+                <header class="main-header">
+                    <h2>Data Lagu Daerah</h2>
+                    <a href="#" class="btn-tbh" onclick="showAddLaguDaerahForm()">Tambah Lagu Daerah</a>
+                </header>
+                <!-- Form Pencarian -->
+                <form method="GET" action="{{ url_for('admin_menu') }}">
+                    <div>
+                        <label for="search_song">Cari Judul Lagu:</label>
+                        <input type="text" id="search_song" name="search_song" placeholder="Masukkan Judul Lagu"
+                            value="{{ request.args.get('search_song', '') }}">
+                        <button class="btn-tbh" type="submit">Cari</button>
+                    </div>
+                </form>
+            
+                <table border="1" class="data-table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Judul Lagu</th>
+                            <th>Tahun Rilis</th>
+                            <th>Bahasa</th>
+                            <th>Lirik</th>
+                            <th>Audio</th>
+                            <th>Cover</th>
+                            <th>Durasi</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if lagu_daerah %}
+                            {% for song in lagu_daerah %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>{{ song.title }}</td>
+                                <td>{{ song.release_year or '-' }}</td>
+                                <td>{{ song.language or '-' }}</td>
+                                <td style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                    {{ song.lyrics[:100] }}{% if song.lyrics|length > 100 %}...{% endif %}
+                                </td>
+                                <td>
+                                    {% if song.audio_url %}
+                                    <audio controls>
+                                        <source src="{{ url_for('static', filename='LAGU/Daerah/audio/' + song.audio_url) }}" type="audio/mpeg">
+                                        Browser Anda tidak mendukung audio.
+                                    </audio>
+                                    {% else %}
+                                    Tidak ada audio
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if song.cover_url %}
+                                    <img src="{{ url_for('static', filename='LAGU/Daerah/cover/' + song.cover_url) }}" width="50" alt="Cover">
+                                    {% else %}
+                                    Tidak ada cover
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if song.duration %}
+                                        {{ song.duration.strftime('%M:%S') }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <form action="{{ url_for('delete_song', song_id=song.id) }}" method="POST"
+                                        onsubmit="return confirm('Apakah Anda yakin ingin menghapus lagu ini?');"
+                                        style="display:inline;">
+                                        <button type="submit" class="btn btn-danger">Hapus</button>
+                                    </form>                                    
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="9" style="text-align: center;">Tidak ada data lagu daerah.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Form Tambah Lagu Daerah -->
+            <div id="addLaguDaerahForm" class="content" style="display:none;">
+                <header class="main-header">
+                    <h2>Tambah Data Lagu Daerah</h2>
+                </header>
+                <form action="{{ url_for('add_song') }}" method="POST" enctype="multipart/form-data" class="form">
+                    <input type="hidden" name="type" value="daerah"> <!-- Untuk membedakan lagu nasional -->
+
+                    <div class="form-group">
+                        <label for="title">Judul Lagu</label>
+                        <input type="text" id="title" name="title" placeholder="Judul Lagu" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="release_year">Tahun Rilis</label>
+                        <input type="number" id="release_year" name="release_year" placeholder="Tahun Rilis">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="language">Bahasa</label>
+                        <input type="text" id="language" name="language" placeholder="Bahasa Lagu">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="duration">Durasi (format: mm:ss)</label>
+                        <input type="text" id="duration" name="duration" placeholder="Contoh: 03:30">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lyrics">Lirik</label>
+                        <textarea id="lyrics" name="lyrics" placeholder="Lirik Lagu"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="audio_url">Upload Audio (MP3)</label>
+                        <input type="file" id="audio_url" name="audio_url" accept="audio/*" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cover_url">Upload Cover</label>
+                        <input type="file" id="cover_url" name="cover_url" accept="image/*">
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" onclick="hideAddLaguNasionalForm()">Simpan</button>
+                        <button type="button" class="btn btn-danger" onclick="hideAddLaguNasionalForm()">Batal</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="dataMediaContent" class="content">
+                <!-- Tabel Data Media Timeline -->
+                <header class="main-header">
+                    <h2>Data Media Timeline</h2>
+                    <a href="#" class="btn-tbh" onclick="showAddMediaForm()">Tambah Media</a>
+                </header>
+            
+                <!-- Form Pencarian -->
+                <form method="GET" action="{{ url_for('admin_menu') }}">
+                    <div>
+                        <label for="search_media">Cari Nama Media:</label>
+                        <input type="text" id="search_media" name="search_media" placeholder="Masukkan Deskripsi Media"
+                            value="{{ request.args.get('search_media', '') }}">
+                        <button class="btn-tbh" type="submit">Cari</button>
+                    </div>
+                </form>
+            
+                <table border="1" class="data-table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Timeline ID</th>
+                            <th>Nomor Urut</th>
+                            <th>Jenis Media</th>
+                            <th>Deskripsi</th>
+                            <th>Media</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if media %}
+                        {% for m in media %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ m.timeline_id }}</td>
+                            <td>{{ m.nomor_urut }}</td>
+                            <td>{{ m.media_type | capitalize }}</td>
+                            <td>{{ m.description or 'Tidak ada deskripsi' }}</td>
+                            <td>
+                                {% if m.media_type == 'image' %}
+                                    <img src="{{ url_for('static', filename='Media/images/' + m.media_url) }}" width="50">
+                                {% elif m.media_type == 'video' %}
+                                    <video width="50" controls>
+                                        <source src="{{ url_for('static', filename='Media/video/' + m.media_url) }}" type="video/mp4">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                {% else %}
+                                    Tidak ada media
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ url_for('delete_media', id=m.media_id) }}" class="btn btn-danger" onclick="return confirmDelete()">Hapus</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td colspan="7" style="text-align: center;">Tidak ada data media.</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="addMediaForm" class="form-container" style="display: none;">
+                <header class="form-header">
+                    <h2>Tambah Media Timeline</h2>
+                </header>
+                <form method="POST" action="{{ url_for('add_media') }}" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="timeline_id">Timeline ID:</label>
+                        <input type="number" id="timeline_id" name="timeline_id" required placeholder="Masukkan Timeline ID">
+                    </div>
+                    <div class="form-group">
+                        <label for="nomor_urut">Nomor Urut:</label>
+                        <input type="number" id="nomor_urut" name="nomor_urut" required placeholder="Masukkan Nomor Urut">
+                    </div>
+                    <div class="form-group">
+                        <label for="media_type">Jenis Media:</label>
+                        <select id="media_type" name="media_type" required>
+                            <option value="image">Gambar</option>
+                            <option value="video">Video</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="media_file">File Media:</label>
+                        <input type="file" id="media_file" name="media_file" accept="image/*,video/*" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Deskripsi (Opsional):</label>
+                        <textarea id="description" name="description" placeholder="Masukkan deskripsi media"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" onclick="hideAddMediaForm()">Simpan</button>
+                        <button type="button" class="btn btn-danger" onclick="hideAddMediaForm()">Batal</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="dataBadWordContent" class="content">
+                <!-- Tabel Data BadWord -->
+                <header class="main-header">
+                    <h2>Data BadWord</h2>
+                    <a href="#" class="btn-tbh" onclick="showAddBadWordForm()">Tambah BadWord</a>
+                </header>
+                <!-- Form Pencarian -->
+                <form method="GET" action="{{ url_for('admin_menu') }}">
+                    <div>
+                        <label for="search_badword">Cari Kata Terlarang:</label>
+                        <input type="text" id="search_badword" name="search_badword" placeholder="Masukkan Kata Terlarang"
+                            value="{{ request.args.get('search_badword', '') }}">
+                        <button class="btn-tbh" type="submit">Cari</button>
+                    </div>
+                </form>
+                <table border="1" class="data-table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama BadWord</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if badwords %}
+                        {% for bw in badwords %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ bw.word }}</td>
+                            <td>
+                                <a href="{{ url_for('delete_badword', id=bw.id) }}" class="btn btn-danger"
+                                    onclick="return confirmDelete()">Hapus</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td colspan="3" style="text-align: center;">Tidak ada data BadWord.</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        
+            <!-- Form Tambah BadWord -->
+            <div id="addBadWordForm" class="content" style="display: none;">
+                <header class="main-header">
+                    <h2>Tambah Data BadWord</h2>
+                </header>
+                <form action="{{ url_for('add_badword') }}" method="POST" class="form">
+                    <div class="form-group">
+                        <label for="word">Kata Terlarang</label>
+                        <input type="text" id="word" name="word" placeholder="Kata Terlarang" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" onclick="hideAddBadWordForm()">Simpan</button>
+                        <button type="button" class="btn btn-danger" onclick="hideAddBadWordForm()">Batal</button>
+                    </div>
+                </form>
+            </div>
+            
+
+            <div id="dataSentimentContent" class="content" style="display: none;">
+                <h2>Sentiment Analisis</h2>
+                <div class="container-fluid py-4">
+                    <div class="row">
+                        <div class="col-md-7">
+                            <div class="card-admin">
+                                <div class="card-body">
+                                    <ul class="list-group">
+                                        {% for result in sentiment_results %}
+                                        <li class="list-group-item">
+                                            <p class="mb-2"><strong>Review:</strong> {{ result.text }}</p>
+                                            <p class="mb-0"><strong>Sentiment:</strong> {{ result.sentiment }}</p>
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="card-admin">
+                                <h1>Sentiment Comparison</h1>
+                                <div class="card-body">
+                                    <canvas class="canvas" id="sentimentPieChart" width="355" height="400"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Fungsi untuk mengganti konten yang ditampilkan berdasarkan menu yang dipilih
+            function switchContent(contentId, menuId) {
+                const allContents = document.querySelectorAll('.content');
+                allContents.forEach(content => content.style.display = 'none');
+                document.getElementById(contentId).style.display = 'block';
+
+                const allMenuItems = document.querySelectorAll('.sidebar-nav a');
+                allMenuItems.forEach(item => item.classList.remove('active'));
+
+                if (menuId) {
+                    document.getElementById(menuId).classList.add('active');
+                }
+            }
+
+            // Menambahkan event listener untuk setiap menu
+            document.getElementById('dashboardMenu').addEventListener('click', function () {
+                switchContent('dashboardContent', 'dashboardMenu');
+            });
+            document.getElementById('dataTokohMenu').addEventListener('click', function () {
+                switchContent('dataTokohContent', 'dataTokohMenu');
+            });
+            document.getElementById('dataTimelineMenu').addEventListener('click', function () {
+                switchContent('dataTimelineContent', 'dataTimelineMenu');
+            });
+            document.getElementById('dataLaguNasionalMenu').addEventListener('click', function () {
+                switchContent('dataLaguNasionalContent', 'dataLaguNasionalMenu');
+            });
+            document.getElementById('dataLaguDaerahMenu').addEventListener('click', function () {
+                switchContent('dataLaguDaerahContent', 'dataLaguDaerahMenu');
+            });
+            document.getElementById('dataQuizMenu').addEventListener('click', function () {
+                switchContent('dataQuizContent', 'dataQuizMenu');
+            });
+            document.getElementById('dataMediaMenu').addEventListener('click', function () {
+                switchContent('dataMediaContent', 'dataMediaMenu');
+            });
+            document.getElementById('dataBadWordMenu').addEventListener('click', function () {
+                switchContent('dataBadWordContent', 'dataBadWordMenu');
+            });
+            document.getElementById('dataSentimentMenu').addEventListener('click', function () {
+                switchContent('dataSentimentContent', 'dataSentimentMenu');
+            });
+
+            // Menampilkan konten dashboard secara default
+            switchContent('dashboardContent', 'dashboardMenu');
+
+            // Pastikan sentimentResults sudah ada sebelum rendering chart
+            const sentimentResults = {{ sentiment_results| tojson
+        }};
+        console.log(sentimentResults);
+
+        let positiveCount = 0;
+        let negativeCount = 0;
+
+        sentimentResults.forEach(result => {
+            if (result.sentiment === 'Positif') {
+                positiveCount++;
+            } else if (result.sentiment === 'Negatif') {
+                negativeCount++;
+            }
+        });
+
+        const data = {
+            labels: ['Positive', 'Negative'],
+            datasets: [{
+                label: 'Sentiment Comparison',
+                data: [positiveCount, negativeCount],
+                backgroundColor: ['#36A2EB', '#FF6384'],
+                hoverOffset: 4
+            }]
+        };
+
+        // Pastikan canvas sudah ada
+        const ctx = document.getElementById('sentimentPieChart');
+        console.log(ctx);
+        if (ctx) {
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: data,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Sentiment Distribution'
+                        }
+                    }
+                }
+            });
+        } else {
+            console.error('Canvas element tidak ditemukan!');
+        }
+        });
+
+        // Fungsi konfirmasi logout
+        function confirmLogout() {
+            const confirmation = confirm("Apakah Anda yakin ingin keluar?");
+            if (confirmation) {
+                window.location.href = "/logout";
+            }
+        }
+
+        // Fungsi konfirmasi delete
+        function confirmDelete() {
+            return confirm("Apakah Anda yakin ingin menghapus data ini?");
+        }
+
+        function showAddTimelineForm() {
+            document.getElementById('dataTimelineContent').style.display = 'none';
+            document.getElementById('addTimelineForm').style.display = 'block';
+        }
+
+        function hideAddTimelineForm() {
+            document.getElementById("addTimelineForm").style.display = "none";
+            document.getElementById("dataTimelineContent").style.display = "block";
+        }
+
+        // Fungsi untuk menampilkan form tambah tokoh
+        function showAddTokohForm() {
+            document.getElementById('dataTokohContent').style.display = 'none';
+            document.getElementById('addTokohForm').style.display = 'block';
+        }
+
+        function hideAddTokohForm() {
+            document.getElementById("addTokohForm").style.display = "none";
+            document.getElementById("dataTokohContent").style.display = "block";
+        }
+
+        function showAddQuizForm() {
+            document.getElementById('dataQuizContent').style.display = 'none';
+            document.getElementById('addQuizForm').style.display = 'block';
+        }
+
+        function hideAddQuizForm() {
+            document.getElementById("addQuizForm").style.display = "none";
+            document.getElementById("dataQuizContent").style.display = "block";
+        }
+
+        function showAddLaguNasionalForm() {
+            document.getElementById('dataLaguNasionalContent').style.display = 'none';
+            document.getElementById('addLaguNasionalForm').style.display = 'block';
+        }
+
+        function hideAddLaguNasionalForm() {
+            document.getElementById('addLaguNasionalForm').style.display = 'none';
+            document.getElementById('dataLaguNasionalContent').style.display = 'block';
+        }
+
+        function showAddLaguDaerahForm() {
+            document.getElementById('dataLaguDaerahContent').style.display = 'none';
+            document.getElementById('addLaguDaerahForm').style.display = 'block';
+        }
+
+        function hideAddLaguDaerahForm() {
+            document.getElementById('addLaguDaerahForm').style.display = 'none';
+            document.getElementById('dataLaguDaerahContent').style.display = 'block';
+        }
+
+        function showAddMediaForm() {
+            document.getElementById('dataMediaContent').style.display = 'none';
+            document.getElementById("addMediaForm").style.display = "block";
+        }
+        
+        function hideAddMediaForm() {
+            document.getElementById("addMediaForm").style.display = "none";
+            document.getElementById("dataMediaContent").style.display = "block";
+        }
+
+        function showAddBadWordForm() {
+            document.getElementById('dataBadWordContent').style.display = 'none';
+            document.getElementById('addBadWordForm').style.display = 'block';
+        }
+
+        function hideAddBadWordForm() {
+            document.getElementById("addBadWordForm").style.display = "none";
+            document.getElementById("dataBadWordContent").style.display = "block";
+        }
+
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

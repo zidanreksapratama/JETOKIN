@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Jejak Tokoh Indonesia</title>
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+    <div class="login-container">
+        <div class="image-side">
+            <!-- Jika ingin menambahkan gambar lain, bisa ditambahkan di sini -->
+        </div>
+        <div class="login-side">
+            <div class="login-box">
+                <div class="title-box">
+                    <h2>JEJAK TOKOH INDONESIA: PAHLAWAN, PEMIMPIN & INSPIRATOR</h2>
+                </div>
+                <p>Selamat datang kembali! Silakan masuk ke akun Anda.</p>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                <ul class="flashes">
+                    {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                    <script>console.log("Message: {{ message }} | Category: {{ category }}");</script>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                {% endwith %}
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    <div class="input-group">
+                        {{ form.email.label }}<br>
+                        {{ form.email(size=32) }}
+                    </div>
+                    <div class="input-group">
+                        {{ form.password.label }}<br>
+                        {{ form.password(size=32) }}
+                    </div>
+                    <div class="remember-group">
+                        {{ form.remember() }} Remember Me
+                    </div>
+                    <div class="social-buttons">
+                        <div class="input-group">
+                            {{ form.submit(class="btn-login") }}
+                        </div>
+                    </div>
+                </form>
+                <div class="forgot-password">
+                    <p><a href="{{ url_for('forgot_password') }}">Lupa Kata Sandi??</a></p>
+                </div>
+                <div class="login-options">
+                    <div class="social-buttons">
+                        <button class="btn btn-sosial" onclick="window.location.href='{{ url_for('google_login') }}'">
+                            <img src="{{ url_for('static', filename='images/GOOGLE.png') }}" alt="Google Icon"> Login
+                            with Google
+                        </button>
+                    </div>
+                    <div class="register-link"></div>
+                    <p>Tidak punya akun?<a href="{{ url_for('register') }}">Register disini</a>.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

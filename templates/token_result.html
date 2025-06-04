@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Token</title>
+</head>
+<body>
+    <h2>Berhasil Login!</h2>
+    <p>Bearer Token kamu:</p>
+    <textarea readonly rows="6" cols="80">{{ token }}</textarea>
+    <br><br>
+    <button onclick="copyToken()">Copy Token</button>
+
+    <script>
+        function copyToken() {
+            const textarea = document.querySelector("textarea");
+            textarea.select();
+            document.execCommand("copy");
+            alert("Token berhasil disalin!");
+        }
+    </script>
+</body>
+</html>

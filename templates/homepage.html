@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jejak Tokoh Inspiratif Indonesia</title>
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <div class="navbar-homepage">
+        <div class="logo">
+            <img src="/static/images/LOGO.png" alt="Logo" class="logo-img">
+            <h2 class="logo-text-2">JETOKIN</h2>
+        </div>
+
+        <!-- Tombol Kembali -->
+        <button id="btnKembali" onclick="hideTokohCards(); hideLaguCards(); hideHariCards();" style="display: none; padding: 8px 16px; margin-right: 10px; background-color: transparent; border: none; cursor: pointer;">
+            <img src="/static/images/back_icon.png" alt="Back" style="width: 30px; height: 30px;"/>
+        </button>        
+
+        <div class="search-bar" id="searchSection" style="display: none;">
+            <input type="text" id="searchInput" placeholder="Apa yang anda cari?" onkeyup="searchFunction()">
+            <select id="categorySelect" onchange="filterByCategory()">
+                <option value="">All categories</option>
+                <!-- Zaman Perjuangan -->
+                <optgroup label="Zaman Perjuangan">
+                    {% for zaman in zaman_perjuangan_list %}
+                    <option value="{{ zaman[0] }}">{{ zaman[0] }}</option>
+                    {% endfor %}
+                </optgroup>
+                <!-- Bidang Perjuangan -->
+                <optgroup label="Bidang Perjuangan">
+                    {% for bidang in bidang_perjuangan_list %}
+                    <option value="{{ bidang[0] }}">{{ bidang[0] }}</option>
+                    {% endfor %}
+                </optgroup>
+                <!-- Provinsi -->
+                <optgroup label="Provinsi">
+                    {% for wilayah_name, provinsi_group in wilayah.items() %}
+                    <optgroup label="{{ wilayah_name }}">
+                        {% for provinsi in provinsi_group %}
+                        <option value="{{ provinsi }}">{{ provinsi }}</option>
+                        {% endfor %}
+                    </optgroup>
+                    {% endfor %}
+                </optgroup>
+            </select>
+        </div>
+
+        <div class="search-bar" id="searchLaguSection" style="display: none;">
+            <input type="text" id="searchLaguInput" placeholder="Cari Lagu..." onkeyup="searchLaguFunction()">
+            
+            <select id="typeLaguSelect" onchange="filterLagu()">
+                <option value="">Semua Tipe Lagu</option>
+                <optgroup label="Tipe Lagu">
+                    <option value="nasional">Nasional</option>
+                    <option value="daerah">Daerah</option>
+                </optgroup>
+            </select>            
+        </div>        
+        
+        <div class="icons">
+            <a href="{{ url_for('setting') }}">
+                <img src="/static/images/USER.png" alt="User Icon">
+            </a>
+            <a href="{{ url_for('quiz') }}">
+                <img src="/static/images/QUIZ.png" alt="Quiz Icon">
+            </a>
+            <a href="#" id="logoutLink" onclick="confirmLogout()">
+                <img src="/static/images/LOGOUT.png" alt="Logout Icon">
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content-homepage">
+        <!-- Banner Hari Penting -->
+        <div class="banner-hari-penting" {% if not hari_penting %}style="display: none;"{% endif %}>
+            {% if hari_penting %}
+            <div class="hari-penting">
+                <h4>Hari ini memperingati:</h4>
+                <p><strong>{{ hari_penting.nama }}</strong> - {{ hari_penting.tanggal }}</p>
+            </div>
+            {% else %}
+            <p>Tidak ada hari penting untuk hari ini.</p>
+            {% endif %}
+        </div>
+
+        <!-- Section: Pahlawan Negara -->
+        <div class="section" id="presidents-section">
+            <h3 class="section-title" id="judulSection"></h3>
+            <!-- Container semua card -->
+            <div class="show-tokoh-trigger" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">
+    
+                <!-- Card Pahlawan -->
+                <div class="card center-card" onclick="showTokohCards()" style="width: 220px; height: auto; text-align: center; padding: 10px;">
+                    <img src="/static/images/pahlawan.jpg" alt="Daftar Pahlawan" class="card-img" style="width: 100%; height: auto; border-radius: 8px;">
+                    <h5 class="card-title" style="margin-top: 10px; font-size: 16px;">Lihat Daftar Pahlawan</h5>
+                </div>
+            
+                <!-- Card Lagu Nasional -->
+                <div class="card center-card" onclick="showLaguCards()" style="width: 220px; height: auto; text-align: center; padding: 10px;">
+                    <img src="/static/images/lagu.png" alt="Daftar Lagu Nasional" class="card-img" style="width: 100%; height: auto; border-radius: 8px;">
+                    <h5 class="card-title" style="margin-top: 10px; font-size: 16px;">Lihat Daftar Lagu Nasional dan Daerah Indonesia</h5>
+                </div>
+            
+                <!-- Card Hari Penting -->
+                <div class="card center-card" onclick="showHariCards()" style="width: 220px; height: auto; text-align: center; padding: 10px;">
+                    <img src="/static/images/hari_penting.png" alt="Hari Penting Nasional" class="card-img" style="width: 100%; height: auto; border-radius: 8px;">
+                    <h5 class="card-title" style="margin-top: 10px; font-size: 16px;">Lihat Daftar Hari Penting Nasional</h5>
+                </div>
+            
+            </div>
+             
+
+            <!-- Daftar Tokoh -->
+            <div class="card-container" id="tokohCards" style="display: none;">
+                {% if tokoh_list %}
+                {% for tokoh in tokoh_list %}
+                <div class="card" onclick="window.location.href='{{ url_for('detail_tokoh', id=tokoh.id) }}'">
+                    <img src="{{ url_for('static', filename='images/Pahlawan/' + tokoh.photo_url) }}" alt="{{ tokoh.name }}">
+                    <h5 class="card-title">{{ tokoh.name }}</h5>
+                    <p class="zaman-perjuangan" style="display: none;">{{ tokoh.zaman_perjuangan }}</p>
+                    <p class="bidang-perjuangan" style="display: none;">{{ tokoh.bidang_perjuangan }}</p>
+                    <p class="provinsi" style="display: none;">{{ tokoh.birth_place }}</p>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p>No tokoh found.</p>
+                {% endif %}
+            </div>
+            <!-- Daftar Lagu -->
+            <div class="song-list-container" id="songCards" style="display: none;">
+                {% if lagu_list %}
+                    {% for lagu in lagu_list %}
+                    <div class="song-card" data-type="{{ lagu.type }}" onclick="window.location.href='{{ url_for('detail_lagu', id=lagu.id) }}'">
+                        <img src="{{ url_for('static', filename='LAGU/' + lagu.type.capitalize() + '/cover/' + lagu.cover_url) }}" alt="/static/images/lagu.png" class="song-cover" onerror="this.src='/static/images/lagu.png';">
+                        <div class="song-title">{{ lagu.title }}</div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="no-song">Tidak ada lagu yang tersedia.</p>
+                {% endif %}
+            </div>  
+            <!-- Section Hari Penting Cards (WebView Streamlit) -->
+            <div id="hariCards" style="display: none; width: 100%; height: 80vh; margin-top: 30px;">
+                <iframe
+                    src="https://streamlit-app-production-1dee.up.railway.app/" 
+                    style="width: 100%; height: 100%; border: none;">
+                </iframe>
+            </div>   
+        </div>
+
+        <!-- Floating Icon for Feedback -->
+        <div>
+            <a href="{{ url_for('feedback') }}" class="floating-icon-feedback">
+                <img src="/static/images/feedback.jpeg" alt="feedback" class="floating-icon-img">
+            </a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 Jejak Tokoh Inspiratif Indonesia. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const status = localStorage.getItem("tokohStatus");
+    
+            if (status === "show") {
+                showTokohCards(false); // false untuk tidak set localStorage ulang
+            } else {
+                hideTokohCards(false);
+            }
+        });
+    
+        function showTokohCards(updateStorage = true) {
+            document.getElementById('tokohCards').style.display = 'flex';
+            document.getElementById('searchSection').style.display = 'flex';
+            document.getElementById('judulSection').style.display = 'block';
+            document.querySelector('.show-tokoh-trigger').style.display = 'none';
+            document.getElementById('btnKembali').style.display = 'inline-block';
+            
+            if (updateStorage) {
+                localStorage.setItem("tokohStatus", "show");
+            }
+            // Ganti judul section saat card Pahlawan diklik
+            document.getElementById('judulSection').innerText = 'Pahlawan Negara Republik Indonesia';
+        }
+    
+        function hideTokohCards(updateStorage = true) {
+            document.getElementById('tokohCards').style.display = 'none';
+            document.getElementById('searchSection').style.display = 'none';
+            document.getElementById('judulSection').style.display = 'none';
+            document.querySelector('.show-tokoh-trigger').style.display = 'flex';
+            document.getElementById('btnKembali').style.display = 'none';
+    
+            if (updateStorage) {
+                localStorage.setItem("tokohStatus", "hide");
+            }
+        }
+
+        function showLaguCards() {
+            document.getElementById('songCards').style.display = 'flex';
+            document.getElementById('searchLaguSection').style.display = 'flex';
+            document.getElementById('judulSection').style.display = 'block';
+            document.querySelector('.show-tokoh-trigger').style.display = 'none';
+            document.getElementById('btnKembali').style.display = 'inline-block';
+            
+            localStorage.setItem("laguStatus", "show");
+            
+            // Ganti judul section saat card Lagu Nasional diklik
+            document.getElementById('judulSection').innerText = 'Lagu Nasional Negara Indonesia';
+        }
+
+        function hideLaguCards(updateStorage = true) {
+            document.getElementById('songCards').style.display = 'none';
+            document.getElementById('searchLaguSection').style.display = 'none';
+            document.getElementById('judulSection').style.display = 'none';
+            document.querySelector('.show-tokoh-trigger').style.display = 'flex';
+            document.getElementById('btnKembali').style.display = 'none';
+        
+            if (updateStorage) {
+                localStorage.setItem("laguStatus", "hide");
+            }
+        }        
+
+        function showHariCards(updateStorage = true) {
+            document.getElementById('tokohCards').style.display = 'none';
+            document.getElementById('songCards').style.display = 'none';
+            document.getElementById('hariCards').style.display = 'block';
+            document.getElementById('judulSection').style.display = 'block';
+            document.getElementById('judulSection').innerText = 'Hari Penting Nasional Indonesia';
+            document.querySelector('.show-tokoh-trigger').style.display = 'none';
+            document.getElementById('btnKembali').style.display = 'inline-block';
+            if (updateStorage) localStorage.setItem("hariStatus", "show");
+        }
+    
+        function hideHariCards(updateStorage = true) {
+            document.getElementById('hariCards').style.display = 'none';
+            if (updateStorage) localStorage.setItem("hariStatus", "hide");
+        }
+           
+        function searchFunction() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const cards = document.querySelectorAll('.card');
+    
+            cards.forEach(card => {
+                const cardText = card.querySelector('.card-title').textContent.toLowerCase();
+                card.style.display = cardText.includes(input) ? 'block' : 'none';
+            });
+        }
+    
+        function filterByCategory() {
+            const category = document.getElementById('categorySelect').value.toLowerCase();
+            const cards = document.querySelectorAll('.card');
+    
+            cards.forEach(card => {
+                const zaman = card.querySelector('.zaman-perjuangan')?.textContent.toLowerCase() || '';
+                const bidang = card.querySelector('.bidang-perjuangan')?.textContent.toLowerCase() || '';
+                const prov = card.querySelector('.provinsi')?.textContent.toLowerCase() || '';
+    
+                card.style.display = (
+                    category === '' || zaman.includes(category) || bidang.includes(category) || prov.includes(category)
+                ) ? 'block' : 'none';
+            });
+        }
+
+        // Fungsi untuk pencarian berdasarkan nama lagu
+        function searchLaguFunction() {
+            let input = document.getElementById('searchLaguInput').value.toLowerCase();
+            let cards = document.getElementsByClassName('song-card');
+            
+            for (let i = 0; i < cards.length; i++) {
+                let title = cards[i].getElementsByClassName('song-title')[0].innerText.toLowerCase();
+                if (title.includes(input)) {
+                    cards[i].style.display = 'block';  // Menampilkan kartu lagu jika cocok
+                } else {
+                    cards[i].style.display = 'none';   // Menyembunyikan kartu lagu jika tidak cocok
+                }
+            }
+        }
+
+        function filterLagu() {
+            var input = document.getElementById('searchLaguInput').value.toLowerCase();
+            var filterType = document.getElementById('typeLaguSelect').value.toLowerCase();  // ⬅️ pakai toLowerCase di sini
+            var laguItems = document.getElementsByClassName('song-card');
+        
+            for (var i = 0; i < laguItems.length; i++) {
+                var title = laguItems[i].querySelector('.song-title').textContent.toLowerCase();
+                var type = laguItems[i].getAttribute('data-type').toLowerCase(); // ⬅️ dan ini juga
+        
+                var matchesType = !filterType || type === filterType;
+                var matchesSearch = !input || title.includes(input);
+        
+                if (matchesType && matchesSearch) {
+                    laguItems[i].style.display = "";
+                } else {
+                    laguItems[i].style.display = "none";
+                }
+            }
+        }        
+    
+        function confirmLogout() {
+            if (confirm("Apakah Anda yakin ingin keluar?")) {
+                window.location.href = "/logout";
+            }
+        }
+    </script>    
+
+</body>
+
+</html>

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Tokoh - Jejak Tokoh Inspiratif Indonesia</title>
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <div class="navbar-homepage">
+        <div class="logo">
+            <img src="/static/images/LOGO.png" alt="Logo" class="logo-img">
+            <h2 class="logo-text-2">JETOKIN</h2>
+        </div>
+        <!-- Back Button -->
+        <div class="icons">
+            <a href="{{ url_for('homepage') }}">
+                <img src="{{ url_for('static', filename='images/back_icon.png') }}" alt="Back">
+            </a>
+        </div>
+    </div>
+
+    <!-- Detail Tokoh -->
+    <div class="detail-container">
+        <!-- Timeline -->
+        <div class="timeline">
+            <h1>TIMELINE</h1>
+            <ul>
+                {% for event in timeline_with_media %}
+                <li>
+                    <h3><b>
+                        <a href="javascript:void(0);" class="timeline-item"
+                            data-deskripsi="{{ event.timeline.deskripsi|escape }}"
+                            onclick="showTimelineDescription(this.getAttribute('data-deskripsi'), this)">
+                            {{ event.timeline.nama_timeline }}
+                        </a>
+                    </b></h3>
+
+                    <!-- Media terkait timeline -->
+                    <div class="timeline-media" style="display: none;">
+                        {% for media in event.media %}
+                        {% if media.media_type == 'image' %}
+                        <img src="{{ media.media_url }}" alt="{{ media.description }}" class="timeline-image">
+                        {% elif media.media_type == 'video' %}
+                        <video controls class="timeline-video">
+                            <source src="{{ media.media_url }}" type="video/mp4">
+                            Browser Anda tidak mendukung video tag ini.
+                        </video>
+                        {% endif %}
+                        <p>{{ media.description }}</p>
+                        {% endfor %}
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Biografi -->
+        <div class="biografi" id="biografi-container">
+            <!-- Tombol Kembali ke Biografi -->
+            <div class="icons" id="back-to-biography" style="display:none;">
+                <a href="javascript:void(0);" onclick="goBackToBiography()">
+                    <p><img src="{{ url_for('static', filename='images/back_icon.png') }}" alt="Back"
+                        class="icon-back-biografi"></p>
+                </a>
+            </div>
+
+            <!-- Gambar -->
+            <img src="{{ url_for('static', filename='images/Pahlawan/' + tokoh.photo_url) }}" alt="{{ tokoh.name }}" class="tokoh-photo">
+
+            <!-- Kontainer Teks -->
+            <div class="text-container" id="biografi-text">
+                <h1>BIOGRAFI</h1>
+                <p><strong>Nama:</strong> {{ tokoh.name }}</p>
+                <p><strong>Tempat Lahir:</strong> {{ tokoh.birth_place }}</p>
+                <p><strong>Tanggal Lahir:</strong> {{ tokoh.birth_date }}</p>
+                <p><strong>Tanggal Wafat:</strong> {{ tokoh.death_date }}</p>
+                <p><strong>Alamat Lahir:</strong> {{ tokoh.birth_place }}</p>
+                <p><strong>Alamat Wafat:</strong> {{ tokoh.death_place }}</p>
+                <p><strong>Tempat Pemakaman:</strong> {{ tokoh.burial_place }}</p>
+                <p><strong>Riwayat Hidup:</strong> {{ tokoh.description }}</p>
+                <p><strong>Peran Sosial:</strong> {{ tokoh.peran_utama }}</p>
+                <p><strong>Nomor Dokumen Pengesahan:</strong> {{ tokoh.ascencion_document_number }}</p>
+                <p><strong>Tanggal Dokumen Pengesahan:</strong> {{ tokoh.ascencion_document_date }}</p>
+                <p><strong>Tahun Dokumen Pengesahan:</strong> {{ tokoh.ascencion_year }}</p>
+            </div>
+
+        </div>
+
+        <!-- Chatbot Section -->
+        <div class="chatbot-container">
+            <div class="chatbot-header">Chat dengan Asisten JETOKIN</div>
+            <div class="chatbot-box" id="chatbot-box">
+                <!-- Chatbot messages will appear here -->
+            </div>
+
+            <div class="chatbot-input">
+                <input type="text" id="chatbot-input" placeholder="Tanyakan sesuatu tentang tokoh...">
+                <button onclick="sendMessage()">Kirim</button>
+            </div>
+        </div>
+    </div>
+        
+    <script>
+        function sendMessage() {
+            const inputBox = document.getElementById('chatbot-input');
+            const chatBox = document.getElementById('chatbot-box');
+
+            // Ambil pesan pengguna
+            const userMessage = inputBox.value.trim();
+            if (userMessage === "") return;
+
+            // Tampilkan pesan pengguna di kotak chatbot
+            const userMessageElement = document.createElement('div');
+            userMessageElement.className = 'chatbot-message user-message';
+            userMessageElement.textContent = ` ${userMessage}`;
+            chatBox.appendChild(userMessageElement);
+
+            // Tampilkan animasi loading
+            const loadingElement = document.createElement('div');
+            loadingElement.className = 'chatbot-message bot-message loading';
+            loadingElement.textContent = 'Menunggu respons...';
+            chatBox.appendChild(loadingElement);
+
+            // Scroll otomatis ke bagian bawah
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // Kirim pesan ke backend menggunakan fetch
+            fetch('/chatbot', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: userMessage }),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Gagal mendapatkan respons dari server.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Hapus animasi loading
+                loadingElement.remove();
+
+                // Tampilkan respons bot di kotak chatbot
+                const botMessageElement = document.createElement('div');
+                botMessageElement.className = 'chatbot-message bot-message';
+                botMessageElement.textContent = `${data.response}`;
+                chatBox.appendChild(botMessageElement);
+
+                // Scroll otomatis ke bagian bawah
+                chatBox.scrollTop = chatBox.scrollHeight;
+            })
+            .catch(error => {
+                console.error(error);
+                loadingElement.remove(); // Hapus animasi loading
+                const errorMessageElement = document.createElement('div');
+                errorMessageElement.className = 'chatbot-message bot-message';
+                errorMessageElement.textContent = 'Bot: Maaf, terjadi kesalahan.';
+                chatBox.appendChild(errorMessageElement);
+            });
+
+            // Reset input
+            inputBox.value = "";
+        }                        
+
+        function showTimelineDescription(description, element) {
+            // Menambahkan kelas active pada timeline yang diklik
+            const allItems = document.querySelectorAll('.timeline-item');
+            allItems.forEach(item => item.classList.remove('active-timeline'));
+        
+            element.classList.add('active-timeline');
+        
+            const biografiText = document.getElementById('biografi-text');
+        
+            if (!biografiText) {
+                console.log("Element dengan ID 'biografi-text' tidak ditemukan.");
+                return;
+            }
+        
+            // Ambil media terkait dari elemen parent timeline
+            const timelineMedia = element.closest('li').querySelector('.timeline-media').innerHTML;
+        
+            // Ganti konten biografi container dengan deskripsi timeline dan media
+            biografiText.innerHTML = `
+                <h1>Deskripsi Timeline</h1>
+                <p>${description}</p>
+                <h1>Media Terkait</h1>
+                <div class="timeline-media">${timelineMedia}</div>
+            `;
+        
+            // Tampilkan tombol Kembali ke Biografi
+            document.getElementById('back-to-biography').style.display = 'inline-block';
+        }
+        
+
+        function goBackToBiography() {
+            // Menampilkan konten biografi dan menyembunyikan deskripsi timeline
+            const biografiText = document.getElementById('biografi-text');
+            biografiText.innerHTML = `
+                <h1>BIOGRAFI</h1>
+                <p><strong>Nama:</strong> {{ tokoh.name }}</p>
+                <p><strong>Tempat Lahir:</strong> {{ tokoh.birth_place }}</p>
+                <p><strong>Tanggal Lahir:</strong> {{ tokoh.birth_date }}</p>
+                <p><strong>Tanggal Wafat:</strong> {{ tokoh.death_date }}</p>
+                <p><strong>Alamat Lahir:</strong> {{ tokoh.birth_place }}</p>
+                <p><strong>Alamat Wafat:</strong> {{ tokoh.death_place }}</p>
+                <p><strong>Tempat Pemakaman:</strong> {{ tokoh.burial_place }}</p>
+                <p><strong>Riwayat Hidup:</strong> {{ tokoh.description }}</p>
+                <p><strong>Peran Sosial:</strong> {{ tokoh.peran_utama }}</p>
+                <p><strong>Nomor Dokumen Pengesahan:</strong> {{ tokoh.ascencion_document_number }}</p>
+                <p><strong>Tanggal Dokumen Pengesahan:</strong> {{ tokoh.ascencion_document_date }}</p>
+                <p><strong>Tahun Dokumen Pengesahan:</strong> {{ tokoh.ascencion_year }}</p>
+            `;
+
+            // Menyembunyikan tombol Kembali ke Biografi
+            const backToBiographyBtn = document.getElementById('back-to-biography');
+            if (backToBiographyBtn) {
+                backToBiographyBtn.style.display = 'none';
+            }
+
+            // Menghapus kelas active pada semua timeline item
+            const allItems = document.querySelectorAll('.timeline-item');
+            allItems.forEach(item => {
+                item.classList.remove('active-timeline');
+            });
+        }        
+    </script>
+</body>
+
+</html>

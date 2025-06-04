@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jejak Tokoh Indonesia</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      scroll-behavior: smooth;
+    }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: #fdfdfd;
+      color: #333;
+      overflow-x: hidden;
+    }
+    nav {
+      width: 100%;
+      padding: 20px 50px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(to right, #b30000, #8b0000);
+      position: fixed;
+      top: 0;
+      z-index: 100;
+    }
+    nav .logo-container {
+      display: flex;
+      align-items: center;
+    }
+    nav .logo-container img {
+      width: 40px;
+      height: 40px;
+      margin-right: 10px;
+    }
+    nav .logo {
+      font-size: 1.8em;
+      font-weight: bold;
+      color: #ffffff;
+    }
+    nav ul {
+      list-style: none;
+      display: flex;
+    }
+    nav ul li {
+      margin-left: 30px;
+    }
+    nav ul li a {
+      text-decoration: none;
+      color: #ffe4b5;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+    nav ul li a:hover {
+      color: #ffd700;
+    }
+
+    header {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 0 20px;
+      background: linear-gradient(135deg, #ff7e7e, #ff0000);
+      color: white;
+      animation: fadeIn 2s ease forwards;
+    }
+    header h1 {
+      font-size: 3.5em;
+      margin-bottom: 20px;
+      animation: slideDown 1.5s ease forwards;
+    }
+    header p {
+      font-size: 1.3em;
+      margin-bottom: 30px;
+      max-width: 600px;
+    }
+    .cta-button {
+      padding: 15px 35px;
+      font-size: 1.1em;
+      border: none;
+      background: linear-gradient(45deg, #ffd700, #ffcc00);
+      color: #8b0000;
+      font-weight: bold;
+      border-radius: 50px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.4s ease;
+      animation: bounceIn 2s ease forwards;
+    }
+    .cta-button:hover {
+      transform: scale(1.1);
+      background: linear-gradient(45deg, #ffcc00, #ffd700);
+      box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    section.features {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      padding: 100px 20px 50px;
+      background: #f9f9f9;
+    }
+    .feature {
+      flex: 0 0 300px;
+      margin: 20px;
+      padding: 30px;
+      border-radius: 15px;
+      background: #ffffff;
+      text-align: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      animation: fadeInUp 1.5s ease forwards;
+      border-top: 4px solid #b30000;
+    }
+    .feature:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+    .feature img {
+      width: 70px;
+      margin-bottom: 20px;
+    }
+    .feature h3 {
+      font-size: 1.4em;
+      margin-bottom: 10px;
+      color: #b30000;
+    }
+    .feature p {
+      font-size: 0.95em;
+      color: #555;
+    }
+
+    .about {
+      background: linear-gradient(to right, #ffe5e5, #ffffff);
+      padding: 80px 20px;
+      text-align: center;
+    }
+    .about h2 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+      color: #8b0000;
+    }
+    .about p {
+      max-width: 800px;
+      margin: 0 auto;
+      font-size: 1.1em;
+      color: #555;
+      line-height: 1.6;
+    }
+
+    .testimonials {
+      background: #f0f0f5;
+      padding: 80px 20px;
+      text-align: center;
+    }
+    .testimonial {
+      max-width: 600px;
+      margin: 20px auto;
+      font-style: italic;
+      color: #555;
+      position: relative;
+      padding: 20px;
+      background: white;
+      border-radius: 10px;
+      border-left: 5px solid #ffd700;
+      box-shadow: 0px 5px 15px rgba(0,0,0,0.1);
+    }
+    .testimonial::before {
+      content: "❝";
+      font-size: 4em;
+      color: #ffd700;
+      position: absolute;
+      top: -20px;
+      left: 10px;
+    }
+    .testimonial h4 {
+      margin-top: 15px;
+      font-weight: bold;
+      color: #b30000;
+    }
+
+    footer {
+      background: linear-gradient(to right, #8b0000, #b30000);
+      color: #fff;
+      text-align: center;
+      padding: 25px 0;
+      font-size: 0.9em;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes slideDown {
+      from { transform: translateY(-50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    @keyframes fadeInUp {
+      from { transform: translateY(50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    @keyframes bounceIn {
+      0% { transform: scale(0.3); opacity: 0; }
+      50% { transform: scale(1.05); opacity: 1; }
+      70% { transform: scale(0.9); }
+      100% { transform: scale(1); }
+    }
+
+    @media(max-width: 768px) {
+      nav {
+        flex-direction: column;
+      }
+      nav ul {
+        margin-top: 15px;
+      }
+      header h1 {
+        font-size: 2.5em;
+      }
+      .feature {
+        width: 80%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav>
+  <div class="logo-container">
+    <img src="/static/images/LOGO.png" alt="Logo">
+    <div class="logo">Jejak Tokoh Indonesia</div>
+  </div>
+  <ul>
+    <li><a href="#home">Beranda</a></li>
+    <li><a href="#features">Fitur</a></li>
+    <li><a href="#about">Tentang</a></li>
+    <li><a href="#testimonials">Pentingnya Edukasi</a></li>
+  </ul>
+</nav>
+
+<!-- Header Section -->
+<header id="home">
+  <h1>Jejak Tokoh Indonesia</h1>
+  <p>Mengenal lebih dalam sosok-sosok berpengaruh di Indonesia. Dapatkan informasi lengkap tentang tokoh-tokoh
+    bersejarah dan modern yang telah membentuk Indonesia. Dari pejuang kemerdekaan hingga inovator masa kini, semua ada di sini!</p>
+  <a href="{{ url_for('login_apk') }}" class="cta-button">Mulai Sekarang</a>
+</header>
+
+<!-- Features Section -->
+<section class="features" id="features">
+    <!-- Biografi dan Timeline Hidup Tokoh -->
+    <div class="feature">
+      <img src="https://img.icons8.com/fluency/96/user-male.png" alt="Sejarah Tokoh">
+      <h3>Biografi & Timeline Hidup Tokoh</h3>
+      <p>Mengenal lebih dalam perjalanan hidup para tokoh inspiratif bangsa Indonesia dengan timeline interaktif.</p>
+      <img src="/static/images/biografi.png" alt="Screenshot Biografi & Timeline Hidup Tokoh" style="width: 100%; margin-top: 20px; border-radius: 10px;">
+    </div>
+  
+    <!-- Chatbot untuk Bertanya Mengenai Tokoh -->
+    <div class="feature">
+      <img src="https://img.icons8.com/fluency/96/open-book.png" alt="Edukasi Menarik">
+      <h3>Chatbot Tokoh</h3>
+      <p>Gunakan chatbot untuk bertanya lebih banyak tentang tokoh-tokoh sejarah Indonesia.</p>
+      <img src="screenshot-chatbot.jpg" alt="Screenshot Chatbot Tokoh" style="width: 100%; margin-top: 20px; border-radius: 10px;">
+    </div>
+  
+    <!-- Quiz Interaktif Berbasis AR -->
+    <div class="feature">
+      <img src="https://img.icons8.com/fluency/96/robot.png" alt="Bangga Indonesia">
+      <h3>Quiz Interaktif AR</h3>
+      <p>Ikuti quiz interaktif berbasis Augmented Reality (AR) untuk belajar lebih seru tentang sejarah Indonesia.</p>
+      <img src="/static/images/Ar_quiz.png" alt="Screenshot Quiz Interaktif AR" style="width: 100%; margin-top: 20px; border-radius: 10px;">
+    </div>
+  
+    <!-- Pengenalan Lagu Nasional dan Daerah -->
+    <div class="feature">
+      <img src="https://img.icons8.com/fluency/96/music.png" alt="Lagu Nasional">
+      <h3>Pengenalan Lagu Nasional & Daerah</h3>
+      <p>Mengenal lagu nasional dan daerah sebagai bagian dari kekayaan budaya Indonesia.</p>
+      <img src="/static/images/Lagu_bg.png" alt="Screenshot Pengenalan Lagu Nasional" style="width: 100%; margin-top: 20px; border-radius: 10px;">
+    </div>
+  </section>  
+
+  <section class="about" id="about">
+    <h2>Tentang Aplikasi Jejak Tokoh Indonesia</h2>
+    <p>Jejak Tokoh Indonesia adalah sebuah aplikasi yang dirancang untuk mempermudah masyarakat dalam mempelajari sejarah dan kontribusi tokoh-tokoh besar Indonesia. Aplikasi ini menghadirkan berbagai fitur menarik yang dapat membantu pengguna belajar melalui berbagai cara interaktif.</p>
+    <p>Tujuan utama dari aplikasi ini adalah untuk memperkenalkan tokoh-tokoh penting dalam sejarah Indonesia dan bagaimana mereka berkontribusi dalam membangun bangsa. Melalui aplikasi ini, diharapkan generasi muda dapat terinspirasi untuk terus berprestasi dan menjaga nilai-nilai perjuangan bangsa.</p>
+  </section>
+
+<!-- Permasalahan Kurangnya Edukasi Tentang Pahlawan Indonesia -->
+<section class="testimonials" id="testimonials">
+    <div class="testimonial">
+        <h4>Pentingnya Edukasi Tentang Pahlawan Indonesia</h2>
+    </div>
+    <div class="testimonial">
+        <p>Sayangnya, banyak generasi muda Indonesia yang kurang mengenal dan memahami perjuangan para pahlawan bangsa. Hal ini berdampak pada kurangnya rasa nasionalisme dan penghargaan terhadap sejarah Indonesia yang kaya. Banyak sekolah yang belum memberikan pembelajaran yang mendalam mengenai perjuangan para pahlawan dan kontribusi mereka dalam meraih kemerdekaan.</p>
+    </div>
+    <div class="testimonial">
+        <p>Di sisi lain, banyak tokoh sejarah Indonesia yang peranannya sangat besar, namun jarang dikenang atau dipelajari oleh masyarakat luas. Keberadaan tokoh-tokoh besar yang telah berjuang untuk Indonesia harus dihargai dan dikenalkan lebih luas, terutama di kalangan generasi muda. Untuk itu, penting bagi kita untuk menghidupkan kembali cerita tentang para pahlawan, agar semangat perjuangan mereka tidak terlupakan.</p>
+    </div>
+    <div class="testimonial">
+        <p>Dengan memberikan edukasi yang lebih mendalam tentang sejarah dan para pahlawan bangsa, kita bisa memastikan bahwa semangat perjuangan mereka tetap hidup dan menginspirasi seluruh bangsa Indonesia menuju masa depan yang lebih baik.</p>        
+    </div>
+</section>
+  
+
+<!-- Footer -->
+<footer>
+  <p>&copy; 2025 Jejak Tokoh Indonesia. Semua Hak Dilindungi.</p>
+</footer>
+
+</body>
+</html>

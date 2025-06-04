@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Set Nickname - Jejak Tokoh Indonesia</title>
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+    <div class="login-container">
+        <div class="image-side">
+            <!-- Jika ingin menambahkan gambar lain, bisa ditambahkan di sini -->
+        </div>
+        <div class="login-side">
+            <div class="login-box">
+                <div class="title-box">
+                    <h2>JEJAK TOKOH INDONESIA: PAHLAWAN, PEMIMPIN & INSPIRATOR</h2>
+                </div>
+                <p>Silakan atur nickname Anda untuk melanjutkan.</p>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                <ul class="flashes">
+                    {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                    <script>console.log("Message: {{ message }} | Category: {{ category }}");</script>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                {% endwith %}
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    <div class="input-group">
+                        {{ form.nickname.label }}<br>
+                        {{ form.nickname(size=32) }}
+                    </div>
+                    <div class="social-buttons">
+                        <div class="input-group">
+                            {{ form.submit(class="btn-login") }}
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

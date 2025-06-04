@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify OTP - Jejak Tokoh Indonesia</title>
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+    <div class="login-container">
+        <div class="image-side">
+            <!-- Jika ingin menambahkan gambar lain, bisa ditambahkan di sini -->
+        </div>
+        <div class="login-side">
+            <div class="login-box">
+                <div class="title-box">
+                    <h2>JEJAK TOKOH INDONESIA: PAHLAWAN, PEMIMPIN & INSPIRATOR</h2>
+                </div>
+                <p>Verifikasi OTP Anda</p>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                <ul class="flashes">
+                    {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                    <script>console.log("Message: {{ message }} | Category: {{ category }}");</script>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                {% endwith %}
+                <form method="POST">
+                    <div class="otp-input-group">
+                        <label for="otp">Masukkan OTP</label><br>
+                        <div class="otp-inputs">
+                            <input type="text" name="otp1" maxlength="1" class="otp-input" required>
+                            <input type="text" name="otp2" maxlength="1" class="otp-input" required>
+                            <input type="text" name="otp3" maxlength="1" class="otp-input" required>
+                            <input type="text" name="otp4" maxlength="1" class="otp-input" required>
+                            <input type="text" name="otp5" maxlength="1" class="otp-input" required>
+                            <input type="text" name="otp6" maxlength="1" class="otp-input" required>
+                        </div>
+                    </div>
+                    <div class="social-buttons">
+                        <div class="input-group">
+                            <input type="submit" value="Verify OTP" class="btn-login">
+                        </div>
+                    </div>
+                </form>
+                <div class="login-options">
+                    <p>Tidak menerima OTP? <a href="{{ url_for('forgot_password') }}">Kirim ulang OTP</a>.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript untuk otomatis pindah field -->
+    <script>
+        const inputs = document.querySelectorAll('.otp-input');
+
+        inputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                if (input.value.length === 1 && index < inputs.length - 1) {
+                    inputs[index + 1].focus(); // Pindah ke input berikutnya
+                } else if (input.value.length === 1 && index === inputs.length - 1) {
+                    input.blur(); // Hentikan pindah jika input terakhir sudah diisi
+                }
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === "Backspace" && input.value === '' && index > 0) {
+                    inputs[index - 1].focus(); // Pindah ke input sebelumnya saat backspace ditekan
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

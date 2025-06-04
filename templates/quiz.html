@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, red, #6a11cb);
+            color: white;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(255, 29, 247, 0.526);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 30px rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            animation: rotate-shadow 4s linear infinite;
+        }
+
+        @keyframes rotate-shadow {
+            0% {
+                box-shadow: 0 4px 30px rgba(255, 255, 255, 0.1);
+            }
+
+            25% {
+                box-shadow: 10px 10px 30px rgba(255, 255, 255, 0.2);
+            }
+
+            50% {
+                box-shadow: -10px 10px 30px rgba(255, 255, 255, 0.3);
+            }
+
+            75% {
+                box-shadow: -10px -10px 30px rgba(255, 255, 255, 0.4);
+            }
+
+            100% {
+                box-shadow: 10px -10px 30px rgba(255, 255, 255, 0.5);
+            }
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            display: inline-block;
+            margin: 10px;
+            padding: 15px 30px;
+            font-size: 1em;
+            font-weight: bold;
+            color: white;
+            background: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #0056b3;
+        }
+
+        .btn.start {
+            background: #28a745;
+        }
+
+        .btn.start:hover {
+            background: #1e7e34;
+        }
+
+        .btn.quick {
+            background: #225fd9;
+        }
+
+        .btn.quick:hover {
+            background: #16237b;
+        }
+
+        .btn.leaderboard {
+            background: #ffc107;
+            color: black;
+        }
+
+        .btn.leaderboard:hover {
+            background: #e0a800;
+        }
+
+        .btn.back {
+            background: #dc3545;
+        }
+
+        .btn.back:hover {
+            background: #a71d2a;
+        }
+
+        .notification {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
+</head>
+
+    <body>
+        <!-- Menambahkan elemen audio untuk backsound -->
+        <audio id="audioElement" autoplay loop muted>
+            <source src="{{ url_for('static', filename='audio/audio_quiz.mp3') }}" type="audio/mp3">
+            Your browser does not support the audio element.
+        </audio>
+
+        <div class="container">
+            <h1>Welcome to the Quiz App, {{ nickname }}!</h1>
+            <p>Test your knowledge and compete with others!</p>
+            
+            <!-- Notifikasi jika sudah mengerjakan quiz hari ini -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="notification">
+                        {% for category, message in messages %}
+                            <p>{{ message }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <div>
+                <a href="/start" class="btn start">Start Quiz</a>
+                <a href="/quickquiz" class="btn quick">Quick Quiz</a>
+                <a href="/leaderboard" class="btn leaderboard">View Leaderboard</a>
+                <a href="/homepage" class="btn back">Back to Homepage</a>
+            </div>
+        </div>
+    <script>
+        // Menunggu sampai halaman dimuat dan mengaktifkan audio
+        window.onload = () => {
+            const audio = document.getElementById("audioElement");
+            audio.muted = false;  // Menonaktifkan mute setelah halaman dimuat
+            audio.play();  // Memutar audio setelah halaman dimuat
+        };
+
+        // Replace 'User' dynamically with a logged-in user's name from server
+        const username = "{{ nickname }}"; // Server-side rendering template
+        document.getElementById("nickname").textContent = username || "User";
+    </script>
+</body>
+
+</html>

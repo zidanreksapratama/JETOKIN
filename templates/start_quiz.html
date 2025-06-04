@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
+    <title>Start Quiz {{ difficulty }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, red, #6a11cb);
+            padding: 20px;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 3em;
+        }
+
+        .quiz-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .question {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        .options {
+            margin-bottom: 30px;
+        }
+
+        .options input {
+            margin-right: 10px;
+        }
+
+        .submit-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.2em;
+            cursor: pointer;
+        }
+
+        .submit-btn:hover {
+            background-color: #45a049;
+        }
+
+        .timer {
+            font-size: 1.5em;
+            color: white;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px 20px;
+            border-radius: 5px;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+            display: none;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+            color: white;
+            font-size: 5em;
+            font-weight: bold;
+        }
+
+        .result-container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .result-container h2 {
+            text-align: center;
+            color: green;
+        }
+
+        .result-container p {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        /* Gaya tombol yang menarik */
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 25px;
+            color: white;
+            background: linear-gradient(135deg, #d32f2f, #6a11cb);
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        /* Efek hover untuk tombol */
+        button:hover {
+            background: linear-gradient(135deg, #6a11cb, #d32f2f);
+            transform: scale(1.05);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Efek aktif saat tombol ditekan */
+        button:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
+</head>
+
+<body>
+    <h1>START QUIZ {{ difficulty | capitalize }}</h1>
+
+    <!-- Timer Display -->
+    <div class="timer" id="timer">Time Left: 01:00</div>
+
+    <!-- Countdown Overlay -->
+    <div class="overlay" id="overlay">3</div>
+
+    <form method="POST" id="quiz-form">
+        <div class="quiz-container">
+            {% for question in questions %}
+            <div class="question">
+                <p>{{ loop.index }}. {{ question.question }}</p>
+                <div class="options">
+                    {% for option in question.randomized_options %}
+                    <input type="radio" name="{{ question.quiz_id }}" value="{{ option }}"
+                        id="opt_{{ loop.index }}_{{ question.quiz_id }}">
+                    <label for="opt_{{ loop.index }}_{{ question.quiz_id }}">{{ option }}</label><br>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+
+            <button type="button" class="submit-btn" id="submit-btn">Submit Answers</button>
+        </div>
+    </form>
+
+    <div class="result-container" id="result-container">
+        <h2>Your Results</h2>
+        <p id="correct-answers"></p>
+        <p id="total-score"></p>
+        <button class="back-btn" onclick="window.location.href='{{ url_for('quiz') }}'">Back to Quiz</button>
+    </div>
+
+    <script>
+        // Countdown sebelum quiz dimulai
+        var overlay = document.getElementById('overlay');
+        var quizForm = document.getElementById('quiz-form');
+        var timerDisplay = document.getElementById('timer');
+        var resultContainer = document.getElementById('result-container');
+        var countdownInitial = 3; // Mulai dari 3
+
+        var submitBtn = document.getElementById('submit-btn');
+
+        // Hitung mundur awal
+        var countdownInterval = setInterval(function () {
+            overlay.innerHTML = countdownInitial; // Tampilkan angka hitungan mundur
+            countdownInitial--;
+
+            if (countdownInitial < 0) {
+                clearInterval(countdownInterval); // Hentikan hitungan mundur
+                overlay.style.display = 'none'; // Sembunyikan overlay
+                quizForm.style.display = 'block'; // Tampilkan form quiz
+                timerDisplay.style.display = 'block'; // Tampilkan timer
+                startQuizTimer(); // Mulai timer quiz
+            }
+        }, 1000);
+
+        // Timer quiz 1 menit
+        var countdownTime = 60;
+        function startQuizTimer() {
+            var timerInterval = setInterval(function () {
+                var minutes = Math.floor(countdownTime / 60);
+                var seconds = countdownTime % 60;
+
+                if (seconds < 10) seconds = "0" + seconds;
+
+                timerDisplay.innerHTML = "Time Left: " + minutes + ":" + seconds;
+
+                countdownTime--;
+
+                if (countdownTime < 0) {
+                    clearInterval(timerInterval);
+                    processResults(); // Proses hasil saat waktu habis
+                }
+            }, 1000);
+        }
+
+        // Simulasi proses hasil setelah submit
+        function processResults() {
+            var correctAnswers = 0;
+            var totalPoints = 0; // Total points yang akan dihitung
+
+            var formData = new FormData(quizForm); // Ambil semua data dari form
+
+            {% for question in questions %}
+            var selectedOption = formData.get("{{ question.quiz_id }}");
+            if (selectedOption && selectedOption === "{{ question.correct_answer }}") {
+                correctAnswers++;
+                totalPoints += {{ question.points }}; // Tambahkan points sesuai soal yang benar
+        }
+        {% endfor %}
+
+        quizForm.style.display = 'none'; // Sembunyikan form quiz
+        timerDisplay.style.display = 'none'; // Sembunyikan timer
+        resultContainer.style.display = 'block'; // Tampilkan hasil
+
+        document.getElementById('correct-answers').innerText =
+            "Correct Answers: " + correctAnswers + " out of " + {{ questions | length }};
+        document.getElementById('total-score').innerText = "Total Points: " + totalPoints;
+
+        // Kirim data skor ke server
+        fetch("{{ url_for('start_quiz') }}", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',  // Mengirimkan data dalam format JSON
+            },
+            body: JSON.stringify({
+                correctAnswers: correctAnswers,
+                totalPoints: totalPoints,
+                userId: "{{ user_id }}" // Kirimkan user_id jika perlu
+            })
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                console.log("Jawaban berhasil disimpan di server:", data);
+            })
+            .catch((error) => console.error("Error:", error));
+        }
+
+        submitBtn.addEventListener('click', processResults);
+    </script>
+</body>
+
+</html>
