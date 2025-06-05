@@ -98,7 +98,7 @@ narwhals
 nest-asyncio
 networkx
 nltk
-numpy
+numpy>=1.26.0
 oauthlib
 opencv-contrib-python
 opencv-python-headless
@@ -132,7 +132,7 @@ PySocks
 python-dateutil
 python-dotenv
 pytz
-pywin32
+pywin32; sys_platform == "win32"
 PyYAML
 pyzmq
 referencing
